@@ -1,4 +1,17 @@
 {
  "done": [],
- "log": []
+ "log": [
+  {
+   "sent_at": "2026-07-25T04:15:12+00:00",
+   "week": 13,
+   "entries": [
+    "001",
+    "004",
+    "002"
+   ],
+   "verse": "Psalm 127:3",
+   "segments": 3,
+   "ref": "telegram:4"
+  }
+ ]
 }
