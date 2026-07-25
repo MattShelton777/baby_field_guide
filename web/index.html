@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Baby Field Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E8ECEF;
+  --paper-2:#F4F6F8;
+  --ink:#141E28;
+  --ink-soft:#4A5A68;
+  --ink-faint:#8A9AA6;
+  --rule:#C8D2D9;
+  --amber:#B26A11;
+  --amber-soft:#F0DFC4;
+  --sage:#416E52;
+  --clay:#A03A2E;
+  --cyan:#1D5F73;
+  --t1:#9FB6C4;
+  --t2:#6E93A8;
+  --t3:#3F6C85;
+  --t4:#B26A11;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:15px;line-height:1.55;
+  padding:0 0 80px;
+}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px}
+.mono{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-faint);
+}
+
+/* ---------- setup gate ---------- */
+#gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+#gate .card{max-width:440px;width:100%}
+#gate h1{font-family:'Archivo',sans-serif;font-weight:900;font-size:38px;line-height:1;letter-spacing:-.03em;margin:14px 0 10px}
+#gate p{color:var(--ink-soft);margin-bottom:22px}
+
+/* ---------- masthead ---------- */
+.masthead{border-bottom:1px solid var(--rule);padding:26px 0 0;background:var(--paper-2)}
+.mast-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.wordmark{font-family:'Archivo',sans-serif;font-weight:900;font-size:15px;letter-spacing:-.01em;text-transform:uppercase}
+.wordmark span{color:var(--amber)}
+.bigcount{display:flex;align-items:center;gap:20px;margin:18px 0 6px;flex-wrap:wrap}
+.bigcount .n{font-family:'Archivo',sans-serif;font-weight:900;font-size:76px;line-height:.85;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.bigcount .lbl{font-size:13px;color:var(--ink-soft);max-width:250px}
+.statline{display:flex;gap:26px;flex-wrap:wrap;margin:16px 0 22px}
+.stat b{display:block;font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:500}
+.stat i{font-style:normal;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+
+/* ---------- the 40 week track (signature) ---------- */
+.track{padding-bottom:6px}
+.track-bars{display:flex;gap:2px;align-items:flex-end;height:34px}
+.wk{flex:1;border-radius:1px 1px 0 0;position:relative;transition:height .18s}
+.wk.t1{background:var(--t1);height:40%}
+.wk.t2{background:var(--t2);height:56%}
+.wk.t3{background:var(--t3);height:74%}
+.wk.t4{background:var(--t4);height:100%}
+.wk.past{opacity:.32}
+.wk.now{outline:2px solid var(--ink);outline-offset:1px;height:100%!important}
+.wk .flag{position:absolute;top:-7px;left:50%;transform:translateX(-50%);width:5px;height:5px;background:var(--clay);border-radius:50%}
+.track-axis{display:flex;justify-content:space-between;padding-top:7px;border-top:1px solid var(--rule);margin-top:5px}
+.track-axis span{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-faint);letter-spacing:.08em}
+.track-key{display:flex;gap:16px;flex-wrap:wrap;padding:9px 0 20px;font-size:11px;color:var(--ink-faint)}
+.track-key i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;font-style:normal}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--rule);margin-bottom:30px;overflow-x:auto;background:var(--paper-2)}
+.tabs .wrapinner{display:flex;max-width:920px;margin:0 auto;width:100%;padding:0 20px}
+.tab{
+  appearance:none;background:none;border:none;border-bottom:2px solid transparent;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-faint);padding:13px 16px 11px;cursor:pointer;white-space:nowrap;
+}
+.tab:first-child{padding-left:0}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--amber)}
+.tab:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+
+/* ---------- task groups ---------- */
+.group{margin-bottom:34px}
+.group-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:1.5px solid var(--ink);padding-bottom:6px;margin-bottom:2px}
+.group-head h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:19px;letter-spacing:-.015em}
+.group-head .rng{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft)}
+
+.task{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--rule);align-items:flex-start}
+.task.done{opacity:.42}
+.task.done .t-title{text-decoration:line-through}
+.box{
+  flex:none;width:19px;height:19px;margin-top:2px;border:1.5px solid var(--ink-soft);border-radius:3px;
+  background:transparent;cursor:pointer;position:relative;transition:.14s;
+}
+.box:hover{border-color:var(--ink);background:#fff}
+.box:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.box[aria-checked="true"]{background:var(--sage);border-color:var(--sage)}
+.box[aria-checked="true"]::after{
+  content:"";position:absolute;left:5.5px;top:1.5px;width:5px;height:10px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(42deg);
+}
+.t-body{flex:1;min-width:0}
+.t-num{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);
+  letter-spacing:.06em;margin-right:9px;font-variant-numeric:tabular-nums;
+}
+.t-title{font-weight:600;font-size:14.5px;letter-spacing:-.005em;display:inline}
+.rangelbl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-faint);letter-spacing:.1em;text-transform:uppercase}
+.t-why{color:var(--ink-soft);font-size:13px;margin-top:2px}
+.t-meta{display:flex;gap:9px;align-items:center;margin-top:7px;flex-wrap:wrap}
+.chip{
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;
+  padding:2.5px 7px;border:1px solid var(--rule);border-radius:2px;color:var(--ink-soft);
+}
+.chip.open{border-color:var(--amber);color:var(--amber);background:var(--amber-soft)}
+.chip.late{border-color:var(--clay);color:#fff;background:var(--clay)}
+.chip.hard{border-color:var(--clay);color:var(--clay)}
+/* window bar: shows when this task is live across the 40 weeks */
+.winbar{height:3px;background:var(--rule);border-radius:2px;position:relative;flex:1;min-width:70px;max-width:150px}
+.winbar i{position:absolute;top:0;height:3px;background:var(--t3);border-radius:2px;display:block}
+.winbar u{position:absolute;top:-2px;width:1.5px;height:7px;background:var(--ink);text-decoration:none}
+
+/* ---------- verse interstitial ---------- */
+.verse{
+  border-top:1px solid var(--ink);border-bottom:1px solid var(--rule);
+  padding:26px 0 22px;margin:34px 0;text-align:center;
+}
+.verse q{
+  display:block;font-family:'Lora',Georgia,serif;font-style:italic;font-size:17.5px;
+  line-height:1.65;max-width:610px;margin:0 auto 11px;quotes:none;color:var(--ink);
+}
+.verse cite{font-family:'IBM Plex Mono',monospace;font-style:normal;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber)}
+
+/* ---------- registry ---------- */
+.toggle{display:inline-flex;border:1px solid var(--ink);border-radius:3px;overflow:hidden;margin-bottom:24px}
+.toggle button{
+  appearance:none;border:none;background:transparent;cursor:pointer;padding:8px 16px;
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink);
+}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
+.reg-row{display:grid;grid-template-columns:130px 1fr 90px;gap:16px;padding:11px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+.reg-row .cat{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint)}
+.reg-row .pick b{font-weight:600}
+.reg-row .pick p{color:var(--ink-soft);font-size:13px;margin-top:1px}
+.reg-row .price{font-family:'IBM Plex Mono',monospace;font-size:13px;text-align:right}
+
+/* ---------- daycare ---------- */
+.banner{background:var(--amber-soft);border-left:3px solid var(--amber);padding:13px 16px;margin-bottom:26px;font-size:13.5px;color:#5C3A0A}
+.dc{border:1px solid var(--rule);background:var(--paper-2);padding:16px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:14px}
+.dc h3{font-family:'Archivo',sans-serif;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.dc .attrs{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.dc .score{text-align:right}
+.dc .score b{font-family:'Archivo',sans-serif;font-size:26px;font-weight:900;display:block;line-height:1}
+.dc .score i{font-style:normal;font-size:10.5px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace}
+
+/* ---------- nudge preview ---------- */
+.phone{max-width:360px;background:#0E1620;border-radius:22px;padding:20px 14px 26px;margin:0 0 22px}
+.phone .hdr{text-align:center;color:#6D808F;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;margin-bottom:16px}
+.bubble{background:#2B7D5B;color:#fff;border-radius:16px 16px 16px 4px;padding:12px 14px;font-size:14px;line-height:1.5;white-space:pre-wrap}
+.phone .stamp{color:#4E606E;font-size:10.5px;font-family:'IBM Plex Mono',monospace;margin-top:8px}
+
+/* ---------- forms / cards ---------- */
+.card{background:var(--paper-2);border:1px solid var(--rule);padding:22px}
+label{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);margin:16px 0 5px}
+input[type=date],input[type=text],textarea,select{
+  width:100%;padding:9px 11px;border:1px solid var(--rule);border-radius:3px;background:#fff;
+  font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);
+}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--cyan);outline-offset:-1px;border-color:var(--cyan)}
+textarea{min-height:76px;resize:vertical}
+.btn{
+  appearance:none;border:none;background:var(--ink);color:var(--paper-2);cursor:pointer;
+  padding:11px 20px;border-radius:3px;margin-top:20px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+}
+.btn:hover{background:var(--cyan)}
+.btn:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.btn.ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--rule)}
+.btn.ghost:hover{background:var(--rule);color:var(--ink)}
+.hint{font-size:12.5px;color:var(--ink-faint);margin-top:6px}
+.hidden{display:none!important}
+
+@media (max-width:620px){
+  .bigcount .n{font-size:56px}
+  .reg-row{grid-template-columns:1fr;gap:4px}
+  .reg-row .price{text-align:left}
+  .dc{grid-template-columns:1fr}
+  .dc .score{text-align:left}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ============ SETUP GATE ============ -->
+<div id="gate">
+  <div class="card">
+    <div class="eyebrow">First edition — one-time setup</div>
+    <h1>The Baby<br>Field&nbsp;Guide</h1>
+    <p>Forty-two entries, each with the season you'll encounter it. Put in the due date and it opens to where you are.</p>
+    <label for="g-due">Due date</label>
+    <input type="date" id="g-due">
+    <label>Sex</label>
+    <div class="toggle" id="g-sex">
+      <button data-sex="boy" aria-pressed="true">Boy</button>
+      <button data-sex="girl" aria-pressed="false">Girl</button>
+      <button data-sex="surprise" aria-pressed="false">Not finding out</button>
+    </div>
+    <label for="g-name">What you're calling him for now</label>
+    <input type="text" id="g-name" placeholder="Baby Boy" value="Baby Boy">
+    <label for="g-partner">Your partner's first name</label>
+    <input type="text" id="g-partner" placeholder="First name">
+    <div class="hint">Used instead of "her" so the guide never leaves you guessing who a line is about.</div>
+    <button class="btn" id="g-go">Open the guide</button>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="hidden">
+
+  <header class="masthead">
+    <div class="wrap">
+      <div class="mast-top">
+        <div class="wordmark">The Baby Field <span>Guide</span></div>
+        <div class="eyebrow" id="due-str"></div>
+      </div>
+
+      <div class="bigcount">
+        <div class="n mono" id="days-left">—</div>
+        <div class="lbl">days until <b id="baby-name">Baby Boy</b> is due. Nudges go out every third day.</div>
+      </div>
+
+      <div class="statline">
+        <div class="stat"><b id="wk-now">—</b><i>Week of 40</i></div>
+        <div class="stat"><b id="tri">—</b><i>Trimester</i></div>
+        <div class="stat"><b id="open-n">—</b><i>Live now</i></div>
+        <div class="stat"><b id="late-n">—</b><i>Past window</i></div>
+        <div class="stat"><b id="pct">—</b><i>Checked off</i></div>
+      </div>
+
+      <div class="track">
+        <div class="track-bars" id="track"></div>
+        <div class="track-axis"><span>WK 01</span><span>WK 13</span><span>WK 27</span><span>WK 40</span><span>+90D</span></div>
+        <div class="track-key">
+          <span><i style="background:var(--t1)"></i>1st tri</span>
+          <span><i style="background:var(--t2)"></i>2nd tri</span>
+          <span><i style="background:var(--t3)"></i>3rd tri</span>
+          <span><i style="background:var(--t4)"></i>after he's here</span>
+          <span><i style="background:var(--clay)"></i>hard deadline</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs"><div class="wrapinner" role="tablist">
+    <button class="tab" role="tab" data-view="timeline" aria-selected="true">Timeline</button>
+    <button class="tab" role="tab" data-view="registry" aria-selected="false">Registry</button>
+    <button class="tab" role="tab" data-view="daycare" aria-selected="false">Daycare</button>
+    <button class="tab" role="tab" data-view="nudge" aria-selected="false">Next text</button>
+    <button class="tab" role="tab" data-view="setup" aria-selected="false">Setup</button>
+  </div></nav>
+
+  <main class="wrap">
+    <section id="v-timeline"></section>
+    <section id="v-registry" class="hidden"></section>
+    <section id="v-daycare" class="hidden"></section>
+    <section id="v-nudge" class="hidden"></section>
+    <section id="v-setup" class="hidden"></section>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   STORAGE SHIM
+   Works inside Claude (window.storage) and on a real host
+   (localStorage). Swap this one object for a Supabase client
+   in Phase 1 and nothing else in the file changes.
+   ============================================================ */
+const Store = (() => {
+  const mem = {};
+  const hasWS = typeof window !== 'undefined' && window.storage && window.storage.get;
+  const hasLS = (() => { try { localStorage.setItem('__t','1'); localStorage.removeItem('__t'); return true; } catch(e){ return false; } })();
+  return {
+    async get(k){
+      try{
+        if(hasWS){ const r = await window.storage.get(k); return r ? JSON.parse(r.value) : null; }
+        if(hasLS){ const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }
+      }catch(e){ /* missing key throws — treat as empty */ }
+      return mem[k] ?? null;
+    },
+    async set(k,v){
+      mem[k]=v;
+      try{
+        if(hasWS){ await window.storage.set(k, JSON.stringify(v)); return; }
+        if(hasLS){ localStorage.setItem(k, JSON.stringify(v)); }
+      }catch(e){ console.warn('save failed, holding in memory', e); }
+    }
+  };
+})();
+
+/* ============================================================
+   TIMELINE DATA
+   w = [openWeek, closeWeek] in weeks pregnant. 41+ = post-birth.
+   hard = true means a real deadline, not a suggestion.
+   ============================================================ */
+const TASKS = [
+  // --- first trimester / setup ---
+  {id:'ob',   w:[6,12],  cat:'Medical',   t:'Lock in OB or midwife and confirm the delivery hospital', why:'Check both are in-network before the first bill, not after.'},
+  {id:'ins',  w:[6,14],  cat:'Money',     t:'Pull your plan documents: deductible, out-of-pocket max, delivery coverage', why:'If the due date sits near your plan year rollover you can get hit with two deductibles.'},
+  {id:'hr',   w:[8,16],  cat:'Admin',     t:'Read both parental leave policies end to end', why:'FMLA needs 12 months tenure and 1,250 hours. Company policy often stacks on top — most people never ask.'},
+  {id:'dcr',  w:[8,18],  cat:'Daycare',   t:'Build a list of 8–10 daycares near home and near the office', why:'DFW infant rooms run 6–12 month waitlists. Starting this in the third trimester is starting it late.', hard:true},
+  {id:'fund', w:[8,20],  cat:'Money',     t:'Size the emergency fund against one unpaid leave month', why:'Cheapest anxiety reduction available.'},
+  {id:'news', w:[10,14], cat:'Logistics', t:'Decide who hears it when', why:'Both sets of parents the same day, so neither side finds out they were second. Anyone dealing with fertility trouble or a recent loss hears it privately, before the group.'},
+
+  // --- second trimester ---
+  {id:'scan', w:[18,22], cat:'Medical',   t:'Anatomy scan', why:'The long one. Take the morning off, go together.'},
+  {id:'tour', w:[16,24], cat:'Daycare',   t:'Tour 4–5 daycares in person', why:'Ratios, turnover, and smell tell you more than any review does.'},
+  {id:'wait', w:[18,26], cat:'Daycare',   t:'Get on 2–3 waitlists and pay the deposits', why:'Deposits are usually $100–250 and mostly refundable. Cheap insurance on a March start date.', hard:true},
+  {id:'peds', w:[20,30], cat:'Medical',   t:'Interview 2–3 pediatricians', why:'Confirm in-network, that they take newborns, and which hospital they round at.'},
+  {id:'reg',  w:[20,28], cat:'Gear',      t:'Build the registry', why:'Budget and premium column both filled so people can pick their own level.'},
+  {id:'life', w:[20,30], cat:'Money',     t:'Get term life quotes on both of you', why:'20–30 year term, cheapest it will ever be. Underwriting takes 4–8 weeks so start early.'},
+  {id:'will', w:[22,32], cat:'Legal',     t:'Will with a named guardian', why:'The guardian clause is the entire point. Everything else is paperwork.'},
+  {id:'gluc', w:[24,28], cat:'Medical',   t:'Glucose test', why:'Schedule it, do not let it drift.'},
+  {id:'name', w:[20,36], cat:'Logistics', t:'Get the name list down to three', why:'Middle name, initials, and what it sounds like yelled across a yard.'},
+  {id:'moon', w:[18,28], cat:'Logistics', t:'Babymoon if you want one', why:'Most airlines stop boarding after ~36 weeks.'},
+
+  // --- third trimester ---
+  {id:'preg', w:[26,34], cat:'Admin',     t:'Pre-register at the hospital', why:'Fills out admission paperwork now so you are not doing it mid-contraction.'},
+  {id:'class',w:[26,34], cat:'Medical',   t:'Childbirth class plus infant CPR', why:'CPR is the one that matters. Book early, they fill.'},
+  {id:'htour',w:[28,34], cat:'Logistics', t:'Hospital tour: entrance after hours, parking, where to check in', why:'At 2am you want to be following a route you have already driven.'},
+  {id:'pump', w:[28,34], cat:'Gear',      t:'Order the breast pump through insurance', why:'ACA generally makes it free. There is a window — usually 30 days before due.'},
+  {id:'fmla', w:[30,34], cat:'Admin',     t:'File the leave paperwork', why:'FMLA requires 30 days notice for foreseeable leave.', hard:true},
+  {id:'nurs', w:[28,36], cat:'Home',      t:'Nursery: paint low-VOC, assemble, anchor everything to studs', why:'Paint first, ventilate for a week, then bring furniture in.'},
+  {id:'show', w:[28,34], cat:'Logistics', t:'Baby shower', why:'Late enough to feel real, early enough that {Pn} is comfortable.'},
+  {id:'seat', w:[30,36], cat:'Gear',      t:'Buy the car seat and register it with the manufacturer', why:'Registration is how you find out about recalls. Nobody does it.'},
+  {id:'inst', w:[32,37], cat:'Gear',      t:'Install the seat and get it checked by a certified tech', why:'Fire stations and Safe Kids sites do it free. Most installs are wrong on the first try.', hard:true},
+  {id:'gbs',  w:[35,37], cat:'Medical',   t:'Group B strep test', why:'Routine, around 36 weeks.'},
+  {id:'bag',  w:[34,37], cat:'Logistics', t:'Hospital bag packed and in the car', why:'Packed by 36. Not a list on the fridge — actually in the trunk.'},
+  {id:'stock',w:[32,38], cat:'Home',      t:'Stock the house — including {P} recovery supplies', why:'Newborn and size 1 diapers, wipes, peri bottle, pads, nipple cream, stool softener. The postpartum half is the half everyone forgets.'},
+  {id:'meal', w:[33,39], cat:'Home',      t:'Freezer meals and a meal train', why:'Ten dinners in the freezer buys back two weeks of sanity.'},
+  {id:'wash', w:[34,38], cat:'Home',      t:'Wash newborn clothes, set up the bassinet where you sleep', why:'Free-and-clear detergent. {He} will outgrow half of it in six weeks.'},
+  {id:'dcst', w:[34,39], cat:'Daycare',   t:'Confirm the daycare start date and lock the spot', why:'Reconfirm in writing. Waitlist spots evaporate quietly.', hard:true},
+  {id:'pets', w:[34,39], cat:'Logistics', t:'Line up the dog, the house, and the 2am ride', why:'Two people who can be at your house in an hour.'},
+  {id:'lead', w:[36,40], cat:'Admin',     t:'Tell your manager the exact leave start plan', why:'Write the handoff doc now while you can think.'},
+
+  // --- post birth (41+ = weeks after due) ---
+  {id:'ssn',  w:[41,42], cat:'Admin',     t:'Birth certificate and Social Security card application', why:'The hospital hands you the form. Do it there.'},
+  {id:'add',  w:[41,44], cat:'Money',     t:'Add {him} to health insurance', why:'30 days from birth. Miss it and you wait for open enrollment. This is the hardest deadline on the whole board.', hard:true},
+  {id:'fsa',  w:[41,44], cat:'Money',     t:'Change your FSA and dependent-care FSA elections', why:'Birth is a qualifying life event and the window is the same 30 days. Dependent-care FSA is how you pay daycare pre-tax.', hard:true},
+  {id:'pv1',  w:[41,41], cat:'Medical',   t:'First pediatrician visit, 3–5 days after discharge', why:'Weight check and jaundice. Book it before you leave the hospital.', hard:true},
+  {id:'ben',  w:[42,46], cat:'Legal',     t:'Update beneficiaries on 401k, life, and the will', why:'The will names the guardian. The beneficiary forms move the money and they override the will.'},
+  {id:'ppd',  w:[41,52], cat:'Partner',   t:'Watch for postpartum depression and anxiety — {P} and yours', why:'Screening happens at the 2 and 6 week visits but it can show up later. Know what it looks like. Dads get it too, roughly 1 in 10.'},
+  {id:'529',  w:[44,52], cat:'Money',     t:'Open a 529', why:'Texas has no state deduction so shop nationally on fees. Small monthly beats a big someday.'},
+  {id:'thx',  w:[42,48], cat:'Logistics', t:'Thank-you notes', why:'Do five a day or it becomes a monument.'},
+  {id:'dcpp', w:[42,48], cat:'Daycare',   t:'Daycare enrollment packet and immunization records', why:'They will not take {him} without the shot record.'}
+];
+
+/* stable entry numbers — these become the reply codes in Phase 5
+   ("reply DONE 14") so they must never be reordered. */
+TASKS.forEach((t,i)=>{ t.no = String(i+1).padStart(3,'0'); });
+
+const VERSES = [
+  ["Lo, children are an heritage of the LORD: and the fruit of the womb is his reward.","Psalm 127:3"],
+  ["Train up a child in the way he should go: and when he is old, he will not depart from it.","Proverbs 22:6"],
+  ["And, ye fathers, provoke not your children to wrath: but bring them up in the nurture and admonition of the Lord.","Ephesians 6:4"],
+  ["Like as a father pitieth his children, so the LORD pitieth them that fear him.","Psalm 103:13"],
+  ["The just man walketh in his integrity: his children are blessed after him.","Proverbs 20:7"],
+  ["Fathers, provoke not your children to anger, lest they be discouraged.","Colossians 3:21"],
+  ["As for me and my house, we will serve the LORD.","Joshua 24:15"],
+  ["Watch ye, stand fast in the faith, quit you like men, be strong. Let all your things be done with charity.","1 Corinthians 16:13–14"],
+  ["Children's children are the crown of old men; and the glory of children are their fathers.","Proverbs 17:6"],
+  ["I have no greater joy than to hear that my children walk in truth.","3 John 1:4"],
+  ["He shall feed his flock like a shepherd: he shall gather the lambs with his arm, and carry them in his bosom.","Isaiah 40:11"],
+  ["For thou hast covered me in my mother's womb. I will praise thee; for I am fearfully and wonderfully made.","Psalm 139:13–14"],
+  ["Every good gift and every perfect gift is from above, and cometh down from the Father of lights.","James 1:17"],
+  ["And he shall turn the heart of the fathers to the children, and the heart of the children to their fathers.","Malachi 4:6"],
+  ["Trust in the LORD with all thine heart; and lean not unto thine own understanding.","Proverbs 3:5"],
+  ["Be strong and of a good courage; be not afraid, neither be thou dismayed.","Joshua 1:9"]
+];
+
+const REGISTRY = [
+  ['Sleep','Crib','IKEA Sniglar or Delta convertible','Newton or Nestig convertible',[80,600]],
+  ['Sleep','Mattress','Firm foam, waterproof cover','Newton breathable',[60,300]],
+  ['Sleep','Bassinet','Halo swivel or Fisher-Price bedside','SNOO (or rent it monthly)',[100,1700]],
+  ['Sleep','Swaddles','Muslin squares, 4-pack','Ollie or Love to Dream zip',[25,80]],
+  ['Sleep','Sound + dark','White noise machine, blackout panels','Hatch Rest',[30,90]],
+  ['Feeding','Bottles','Dr. Brown\'s starter set','Comotomo or Nanobebe',[25,70]],
+  ['Feeding','Pump','Insurance-covered double electric','Elvie or Willow wearable',[0,500]],
+  ['Feeding','Bottle drying + sterilizing','Rack and a stock pot','Baby Brezza sterilizer/dryer',[20,150]],
+  ['Feeding','Nursing chair','Whatever recliner you own','Glider with ottoman',[0,700]],
+  ['Diapering','Changing setup','Pad on top of a dresser','Dedicated table with organizer',[30,300]],
+  ['Diapering','Diaper pail','Lidded trash can + scented bags','Ubbi steel',[20,90]],
+  ['Diapering','Wipes warmer','Skip it','Munchkin warmer',[0,35]],
+  ['Travel','Infant car seat','Graco SnugRide SnugFit','Nuna PIPA or Cybex Cloud',[130,550]],
+  ['Travel','Second base','Matching base for the other car','Same',[60,180]],
+  ['Travel','Stroller','Car seat frame stroller','UPPAbaby Vista or Cruz travel system',[70,1000]],
+  ['Travel','Carrier','Infantino or a ring sling','Ergobaby Omni or BabyBjörn Mini',[30,180]],
+  ['Travel','Diaper bag','Any backpack you already own','Backpack with a fold-out pad',[0,180]],
+  ['Soothing','Pacifiers','Philips Avent Soothie multipack','Bibs',[10,25]],
+  ['Soothing','Swing or bouncer','BabyBjörn bouncer used','4moms mamaRoo',[60,250]],
+  ['Health','First aid','Frida NoseFrida, thermometer, nail file','Frida grooming + care kit',[35,90]],
+  ['Health','Monitor','Audio-only, or a $40 wifi cam','Nanit or Owlet Dream Sock',[40,400]],
+  ['Home','Play space','Foam mat and a used play gym','Lovevery play gym + kits',[40,350]],
+  ['Home','High chair (month 5+)','IKEA Antilop','Stokke Tripp Trapp',[30,350]],
+  ['Recovery','For {Pn}, first two weeks','Peri bottle, pads, witch hazel, stool softener, nipple cream','Frida Mom postpartum kit + silverettes',[45,150]],
+  ['Recovery','For you','A good water bottle and a headlamp','Same. Seriously.',[25,45]]
+];
+
+/* mock daycare rows — clearly fake names so nothing gets attributed
+   to a real business. Phase 4 replaces this array with Places API output. */
+const DAYCARES = [
+  {n:'[Placeholder] Northside Learning Academy', r:4.8, rev:214, home:6, work:9, till:'6:30p', wait:'~4 mo', tuition:'$1,150/mo', tags:['Infant room','Camera access','Meals included']},
+  {n:'[Placeholder] Trinity Montessori', r:4.7, rev:96,  home:11, work:5, till:'6:00p', wait:'~9 mo', tuition:'$1,420/mo', tags:['Montessori','Small ratio','Waitlist deposit $200']},
+  {n:'[Placeholder] Cornerstone Kids Center', r:4.5, rev:388, home:8, work:14, till:'6:30p', wait:'Open now', tuition:'$985/mo', tags:['Faith-based','Drop-in days','Sibling discount']},
+  {n:'[Placeholder] Little Oaks Early School', r:4.9, rev:57,  home:16, work:7, till:'5:30p', wait:'~12 mo', tuition:'$1,600/mo', tags:['Highest rated','Closes early','Long waitlist']}
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let S = { due:null, name:'Baby Boy', sex:'boy', partner:'', done:{}, tier:'budget', profile:{} };
+
+/* ---- pronouns + partner name -------------------------------
+   Content is written with tokens, never hardcoded pronouns.
+   {Pn} partner name   {P} partner possessive
+   {he} {He} {him} {his} baby, driven by S.sex             */
+const PRON = {
+  boy:      {he:'he',   He:'He',   him:'him',  his:'his'},
+  girl:     {he:'she',  He:'She',  him:'her',  his:'her'},
+  surprise: {he:'they', He:'They', him:'them', his:'their'}
+};
+function esc(x){ return String(x==null?'':x).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+function fill(str){
+  const p = PRON[S.sex] || PRON.boy;
+  const nm   = S.partner ? esc(S.partner) : 'your partner';
+  const poss = S.partner ? esc(S.partner)+"'s" : "your partner's";
+  return String(str)
+    .replace(/\{Pn\}/g, nm)
+    .replace(/\{P\}/g, poss)
+    .replace(/\{(He|he|him|his)\}/g, (_,k)=>p[k]);
+}
+function defaultName(sex){ return sex==='girl'?'Baby Girl':sex==='surprise'?'Baby':'Baby Boy'; }
+const KEY = 'fortyweeks:v1';
+
+const $ = s => document.querySelector(s);
+const DAY = 86400000;
+
+function daysLeft(){ 
+  const d = new Date(S.due+'T12:00:00');
+  return Math.ceil((d - new Date(new Date().toDateString())) / DAY);
+}
+function week(){ return Math.min(52, Math.max(1, 40 - Math.floor(daysLeft()/7))); }
+function tri(){ const w=week(); return w<=13?'1st':w<=27?'2nd':w<=40?'3rd':'4th'; }
+function status(t){
+  const w = week();
+  if(S.done[t.id]) return 'done';
+  if(w < t.w[0]) return 'later';
+  if(w > t.w[1]) return 'late';
+  return 'open';
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderHeader(){
+  const dl = daysLeft(), w = week();
+  $('#days-left').textContent = dl > 0 ? dl : Math.abs(dl);
+  $('#days-left').nextElementSibling.innerHTML = dl > 0
+    ? 'days until <b>'+S.name+'</b> is due. Nudges go out every third day.'
+    : 'days since <b>'+S.name+'</b> arrived. The list keeps going.';
+  $('#baby-name') && ($('#baby-name').textContent = S.name);
+  $('#wk-now').textContent = w > 40 ? '40+' : String(w).padStart(2,'0');
+  $('#tri').textContent = tri();
+  $('#due-str').textContent = 'Due ' + new Date(S.due+'T12:00:00')
+    .toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  const open = TASKS.filter(t=>status(t)==='open').length;
+  const late = TASKS.filter(t=>status(t)==='late').length;
+  const dn = TASKS.filter(t=>S.done[t.id]).length;
+  $('#open-n').textContent = String(open).padStart(2,'0');
+  $('#late-n').textContent = String(late).padStart(2,'0');
+  $('#pct').textContent = Math.round(dn/TASKS.length*100)+'%';
+
+  // 40-week track + 12 post-birth weeks
+  const flags = new Set(TASKS.filter(t=>t.hard).map(t=>t.w[0]));
+  let h='';
+  for(let i=1;i<=52;i++){
+    const c = i<=13?'t1':i<=27?'t2':i<=40?'t3':'t4';
+    h += '<div class="wk '+c+(i<w?' past':'')+(i===w?' now':'')+'" title="Week '+i+'">'
+       + (flags.has(i)?'<span class="flag"></span>':'') + '</div>';
+  }
+  $('#track').innerHTML = h;
+}
+
+function verseBlock(){
+  const [q,c] = VERSES[Math.floor(Math.random()*VERSES.length)];
+  return '<div class="verse"><q>'+q+'</q><cite>'+c+'</cite></div>';
+}
+
+function taskRow(t){
+  const st = status(t);
+  const w = week();
+  const chip = st==='late' ? '<span class="chip late">Window closed</span>'
+             : st==='open' ? '<span class="chip open">Live now</span>'
+             : st==='done' ? '' : '<span class="chip">Wk '+t.w[0]+'</span>';
+  const left = Math.round(((t.w[0]-1)/52)*100), wid = Math.max(2,((t.w[1]-t.w[0]+1)/52)*100), pos = ((w-1)/52)*100;
+  return '<div class="task'+(S.done[t.id]?' done':'')+'">'
+    + '<button class="box" role="checkbox" aria-checked="'+(!!S.done[t.id])+'" data-id="'+t.id+'" aria-label="'+fill(t.t).replace(/"/g,'')+'"></button>'
+    + '<div class="t-body"><div><span class="t-num">'+t.no+'</span><span class="t-title">'+t.t+'</span></div>'
+    + '<div class="t-why">'+fill(t.why)+'</div>'
+    + '<div class="t-meta"><span class="chip">'+t.cat+'</span>'+chip
+    + (t.hard?'<span class="chip hard">Hard deadline</span>':'')
+    + '<span class="rangelbl">Range</span>'
+    + '<span class="winbar" title="Weeks '+t.w[0]+'–'+t.w[1]+'"><i style="left:'+left+'%;width:'+wid+'%"></i><u style="left:'+pos+'%"></u></span>'
+    + '</div></div></div>';
+}
+
+function renderTimeline(){
+  const w = week();
+  const groups = [
+    ['Overdue', t=>status(t)==='late'],
+    ['In season now', t=>status(t)==='open'],
+    ['Coming into season', t=>status(t)==='later' && t.w[0] <= w+6],
+    ['Later in the year', t=>status(t)==='later' && t.w[0] > w+6],
+    ['Recorded', t=>S.done[t.id]]
+  ];
+  let h='';
+  groups.forEach(([label,fn],i)=>{
+    const set = TASKS.filter(fn);
+    if(!set.length) return;
+    h += '<div class="group"><div class="group-head"><h2>'+label+'</h2>'
+       + '<span class="rng mono">'+String(set.length).padStart(2,'0')+'</span></div>'
+       + set.map(taskRow).join('') + '</div>';
+    if(i < 3) h += verseBlock();
+  });
+  h += verseBlock();
+  $('#v-timeline').innerHTML = h;
+}
+
+function renderRegistry(){
+  let h = '<div class="eyebrow" style="margin-bottom:8px">Registry — both columns filled</div>'
+        + '<div class="toggle">'
+        + '<button data-tier="budget" aria-pressed="'+(S.tier==='budget')+'">Budget</button>'
+        + '<button data-tier="premium" aria-pressed="'+(S.tier==='premium')+'">Higher end</button></div>';
+  let lastCat='', total=0;
+  REGISTRY.forEach(([cat,item,b,p,price])=>{
+    const pick = S.tier==='budget'?b:p, cost = S.tier==='budget'?price[0]:price[1];
+    total += cost;
+    h += '<div class="reg-row"><div class="cat">'+(cat===lastCat?'':cat)+'</div>'
+       + '<div class="pick"><b>'+fill(item)+'</b><p>'+pick+'</p></div>'
+       + '<div class="price">'+(cost===0?'—':'$'+cost)+'</div></div>';
+    lastCat = cat;
+  });
+  h += '<div class="reg-row" style="border-bottom:none;border-top:1.5px solid var(--ink);margin-top:6px">'
+     + '<div class="cat">Total</div><div class="pick"><b>'+(S.tier==='budget'?'Budget build':'Higher-end build')+'</b>'
+     + '<p>Rough order of magnitude. Prices drift — verify before you buy.</p></div>'
+     + '<div class="price">$'+total.toLocaleString()+'</div></div>';
+  h += verseBlock();
+  $('#v-registry').innerHTML = h;
+}
+
+function renderDaycare(){
+  let h = '<div class="banner"><b>Placeholder data.</b> Phase 4 swaps this array for Google Places: Text Search for candidates, Place Details for hours and ratings, Distance Matrix for drive time from home and from the office. Names below are fake on purpose.</div>';
+  DAYCARES.forEach(d=>{
+    h += '<div class="dc"><div><h3>'+d.n+'</h3>'
+       + '<div class="t-why">'+d.home+' min from home · '+d.work+' min from work · open till '+d.till+' · '+d.tuition+' · waitlist '+d.wait+'</div>'
+       + '<div class="attrs">'+d.tags.map(t=>'<span class="chip">'+t+'</span>').join('')+'</div></div>'
+       + '<div class="score"><b>'+d.r+'</b><i>'+d.rev+' reviews</i></div></div>';
+  });
+  h += '<div class="hint" style="margin-top:16px">Ranking weight in the real version: 35% drive time from whichever parent does pickup, 25% rating (floored at 20 reviews), 20% waitlist vs your start date, 20% closing time against your latest realistic pickup.</div>';
+  h += verseBlock();
+  $('#v-daycare').innerHTML = h;
+}
+
+/* ---- SMS encoding math ------------------------------------
+   Twilio bills per segment. Any character outside GSM-7 flips
+   the whole message to UCS-2, which cuts a segment from 153
+   characters down to 67. Em dashes, curly quotes, arrows and
+   middle dots are the usual culprits.                        */
+const GSM7 = "@\u00a3$\u00a5\u00e8\u00e9\u00f9\u00ec\u00f2\u00c7\n\u00d8\u00f8\r\u00c5\u00e5\u0394_\u03a6\u0393\u039b\u03a9\u03a0\u03a8\u03a3\u0398\u039e\u00c6\u00e6\u00df\u00c9 !\"#\u00a4%&'()*+,-./0123456789:;<=>?\u00a1ABCDEFGHIJKLMNOPQRSTUVWXYZ\u00c4\u00d6\u00d1\u00dc\u00a7\u00bf abcdefghijklmnopqrstuvwxyz\u00e4\u00f6\u00f1\u00fc\u00e0";
+const GSM7EXT = "^{}\\[~]|\u20ac";
+function smsCost(t){
+  let n = 0;
+  for(const c of [...t]){
+    if(GSM7.indexOf(c) > -1) n += 1;
+    else if(GSM7EXT.indexOf(c) > -1) n += 2;
+    else { const len = [...t].length; return {enc:'UCS-2', chars:len, segs: len<=70?1:Math.ceil(len/67)}; }
+  }
+  return {enc:'GSM-7', chars:n, segs: n<=160?1:Math.ceil(n/153)};
+}
+/* strip anything that would flip the message to UCS-2 */
+function gsmSafe(t){
+  return t.replace(/[\u2018\u2019]/g,"'").replace(/[\u201c\u201d]/g,'"')
+          .replace(/[\u2013\u2014]/g,'-').replace(/\u2190/g,'<-')
+          .replace(/\u00b7/g,'-').replace(/\u2026/g,'...');
+}
+/* verse rotation: indexed by which 3-day send this is, so the
+   script cycles all 16 before repeating instead of picking at
+   random and hitting the same one twice in a week. */
+function sendIndex(){ return Math.max(0, Math.floor((280 - daysLeft())/3)); }
+
+function renderNudge(){
+  const live = TASKS.filter(t=>{
+    const s = status(t); return s==='late' || s==='open';
+  }).sort((a,b)=>{
+    const sa = status(a)==='late'?0:1, sb = status(b)==='late'?0:1;
+    if(sa!==sb) return sa-sb;
+    if(!!b.hard !== !!a.hard) return (b.hard?1:0)-(a.hard?1:0);
+    return a.w[1]-b.w[1];
+  }).slice(0,3);
+
+  const w = week(), dl = daysLeft();
+  let body = 'Week '+w+'. '+dl+' days out.\n\n';
+  live.forEach(t=>{ body += t.no+' - '+fill(t.t)+(t.hard?' (hard deadline)':'')+'\n'; });
+  if(!live.length) body += 'Nothing in season. Rare. Enjoy it.\n';
+  body += '\nReply DONE '+(live[0]?live[0].no:'014')+' to record it.\n';
+  body += 'babyfieldguide.app\n\n';
+  const [vq, vr] = VERSES[sendIndex() % VERSES.length];
+  body += '"'+vq+'" - '+vr;
+  body = gsmSafe(body);
+  const cost = smsCost(body);
+
+  $('#v-nudge').innerHTML =
+      '<div class="eyebrow" style="margin-bottom:14px">What the 8am Tuesday send would say</div>'
+    + '<div class="phone"><div class="hdr">Message · +1 (817) ···· ····</div>'
+    + '<div class="bubble">'+esc(body)+'</div>'
+    + '<div class="stamp">'+cost.chars+' chars · '+cost.enc+' · '+cost.segs+' segment'+(cost.segs===1?'':'s')
+    + ' · send '+(sendIndex()+1)+'</div></div>'
+    + '<div class="card"><div class="eyebrow">How this gets generated in Phase 2</div>'
+    + '<p style="margin-top:10px;color:var(--ink-soft);font-size:14px">The Python script pulls the same three entries with the same sort, then hands them to the Anthropic API along with your interests, buying style, and what you already recorded — so the copy changes voice instead of repeating a template. Entry selection is deterministic. Only the wording is generated. That keeps it from inventing a deadline.</p>'
+    + '<p style="margin-top:12px;color:var(--ink-soft);font-size:14px">The verse is not generated either. It rotates by send number through the 16 in the file, so all of them come around before any repeats. Keep it out of the prompt entirely — a model asked to supply scripture will eventually produce a reference that does not say what it claims.</p>'
+    + '<p style="margin-top:12px;color:var(--ink-soft);font-size:14px">Every send writes the entry numbers to a log table. Anything nudged in the last 9 days drops out of the pool unless it is past its window, which is how you avoid getting told about the car seat six times.</p></div>'
+    + verseBlock();
+}
+
+function renderSetup(){
+  $('#v-setup').innerHTML =
+      '<div class="card"><div class="eyebrow">Profile — Phase 2 feeds all of this to the API</div>'
+    + '<label for="s-due">Due date</label><input type="date" id="s-due" value="'+S.due+'">'
+    + '<label for="s-name">Working name</label><input type="text" id="s-name" value="'+esc(S.name)+'">'
+    + '<label>Sex</label><div class="toggle" id="s-sex">'
+    + ['boy','girl','surprise'].map(k=>'<button data-sex="'+k+'" aria-pressed="'+(S.sex===k)+'">'
+        +(k==='boy'?'Boy':k==='girl'?'Girl':'Not finding out')+'</button>').join('')+'</div>'
+    + '<label for="s-partner">Partner first name</label><input type="text" id="s-partner" value="'+esc(S.partner)+'">'
+    + '<label for="s-home">Home address</label><input type="text" id="s-home" placeholder="For distance ranking" value="'+(S.profile.home||'')+'">'
+    + '<label for="s-work">Your work address</label><input type="text" id="s-work" value="'+(S.profile.work||'')+'">'
+    + '<label for="s-work2">'+esc(S.partner||'Partner')+'&rsquo;s work address</label><input type="text" id="s-work2" value="'+(S.profile.work2||'')+'">'
+    + '<label for="s-phone">Your mobile</label><input type="text" id="s-phone" placeholder="+1817..." value="'+(S.profile.phone||'')+'">'
+    + '<label for="s-notes">Interests, buying style, anything the writer should know</label>'
+    + '<textarea id="s-notes" placeholder="Golf, DIY projects, we research hard before buying, prefer buy-it-once over cheap, hate clutter...">'+(S.profile.notes||'')+'</textarea>'
+    + '<div class="hint">This block gets pasted into the system prompt. It is the difference between a generic nudge and one that sounds like it knows you.</div>'
+    + '<button class="btn" id="s-save">Save profile</button> '
+    + '<button class="btn ghost" id="s-reset">Reset all checkboxes</button></div>'
+    + verseBlock();
+}
+
+const RENDER = {timeline:renderTimeline, registry:renderRegistry, daycare:renderDaycare, nudge:renderNudge, setup:renderSetup};
+let view = 'timeline';
+function draw(){ renderHeader(); RENDER[view](); }
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+document.addEventListener('click', async e=>{
+  const tab = e.target.closest('.tab');
+  if(tab){
+    view = tab.dataset.view;
+    document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected', b===tab));
+    document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));
+    $('#v-'+view).classList.remove('hidden');
+    draw();
+    return;
+  }
+  const box = e.target.closest('.box');
+  if(box){
+    const id = box.dataset.id;
+    S.done[id] = !S.done[id];
+    await Store.set(KEY, S);
+    draw();
+    return;
+  }
+  const tg = e.target.closest('.toggle button');
+  if(tg){ S.tier = tg.dataset.tier; await Store.set(KEY,S); draw(); return; }
+
+  if(e.target.id === 's-save'){
+    S.due = $('#s-due').value || S.due;
+    S.name = $('#s-name').value || S.name;
+    S.partner = $('#s-partner').value.trim();
+    S.profile = {home:$('#s-home').value, work:$('#s-work').value, work2:$('#s-work2').value,
+                 phone:$('#s-phone').value, notes:$('#s-notes').value};
+    await Store.set(KEY,S);
+    e.target.textContent = 'Saved';
+    setTimeout(()=>{ e.target.textContent='Save profile'; },1400);
+    draw();
+    return;
+  }
+  if(e.target.id === 's-reset'){ S.done = {}; await Store.set(KEY,S); draw(); return; }
+
+  const gs = e.target.closest('#g-sex button');
+  if(gs){
+    document.querySelectorAll('#g-sex button').forEach(b=>b.setAttribute('aria-pressed', b===gs));
+    const sx = gs.dataset.sex, nm = document.querySelector('#g-name');
+    const wasDefault = ['Baby Boy','Baby Girl','Baby',''].includes(nm.value.trim());
+    if(wasDefault){ nm.value = defaultName(sx); }
+    nm.placeholder = defaultName(sx);
+    document.querySelector('label[for="g-name"]').textContent =
+      sx==='surprise' ? "What you're calling them for now"
+      : sx==='girl' ? "What you're calling her for now"
+      : "What you're calling him for now";
+    return;
+  }
+  const ss = e.target.closest('#s-sex button');
+  if(ss){ S.sex = ss.dataset.sex; await Store.set(KEY,S); draw(); return; }
+
+  if(e.target.id === 'g-go'){
+    const d = $('#g-due').value;
+    if(!d){ $('#g-due').focus(); $('#g-due').style.borderColor='var(--clay)'; return; }
+    S.sex = document.querySelector('#g-sex button[aria-pressed="true"]').dataset.sex;
+    S.due = d;
+    S.name = $('#g-name').value.trim() || defaultName(S.sex);
+    S.partner = $('#g-partner').value.trim();
+    await Store.set(KEY,S);
+    $('#gate').classList.add('hidden'); $('#app').classList.remove('hidden');
+    draw();
+  }
+});
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+(async ()=>{
+  const saved = await Store.get(KEY);
+  if(saved && saved.due){
+    S = Object.assign(S, saved);
+    $('#gate').classList.add('hidden');
+    $('#app').classList.remove('hidden');
+    draw();
+  } else {
+    // default the picker to ~30 weeks out so it is one click to try
+    const d = new Date(Date.now() + 210*DAY);
+    $('#g-due').value = d.toISOString().slice(0,10);
+  }
+})();
+</script>
+</body>
+</html>

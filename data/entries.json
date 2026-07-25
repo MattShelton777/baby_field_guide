@@ -1,0 +1,476 @@
+[
+ {
+  "id": "ob",
+  "w": [
+   6,
+   12
+  ],
+  "cat": "Medical",
+  "t": "Lock in OB or midwife and confirm the delivery hospital",
+  "why": "Check both are in-network before the first bill, not after.",
+  "no": "001"
+ },
+ {
+  "id": "ins",
+  "w": [
+   6,
+   14
+  ],
+  "cat": "Money",
+  "t": "Pull your plan documents: deductible, out-of-pocket max, delivery coverage",
+  "why": "If the due date sits near your plan year rollover you can get hit with two deductibles.",
+  "no": "002"
+ },
+ {
+  "id": "hr",
+  "w": [
+   8,
+   16
+  ],
+  "cat": "Admin",
+  "t": "Read both parental leave policies end to end",
+  "why": "FMLA needs 12 months tenure and 1,250 hours. Company policy often stacks on top — most people never ask.",
+  "no": "003"
+ },
+ {
+  "id": "dcr",
+  "w": [
+   8,
+   18
+  ],
+  "cat": "Daycare",
+  "t": "Build a list of 8–10 daycares near home and near the office",
+  "why": "DFW infant rooms run 6–12 month waitlists. Starting this in the third trimester is starting it late.",
+  "hard": true,
+  "no": "004"
+ },
+ {
+  "id": "fund",
+  "w": [
+   8,
+   20
+  ],
+  "cat": "Money",
+  "t": "Size the emergency fund against one unpaid leave month",
+  "why": "Cheapest anxiety reduction available.",
+  "no": "005"
+ },
+ {
+  "id": "news",
+  "w": [
+   10,
+   14
+  ],
+  "cat": "Logistics",
+  "t": "Decide who hears it when",
+  "why": "Both sets of parents the same day, so neither side finds out they were second. Anyone dealing with fertility trouble or a recent loss hears it privately, before the group.",
+  "no": "006"
+ },
+ {
+  "id": "scan",
+  "w": [
+   18,
+   22
+  ],
+  "cat": "Medical",
+  "t": "Anatomy scan",
+  "why": "The long one. Take the morning off, go together.",
+  "no": "007"
+ },
+ {
+  "id": "tour",
+  "w": [
+   16,
+   24
+  ],
+  "cat": "Daycare",
+  "t": "Tour 4–5 daycares in person",
+  "why": "Ratios, turnover, and smell tell you more than any review does.",
+  "no": "008"
+ },
+ {
+  "id": "wait",
+  "w": [
+   18,
+   26
+  ],
+  "cat": "Daycare",
+  "t": "Get on 2–3 waitlists and pay the deposits",
+  "why": "Deposits are usually $100–250 and mostly refundable. Cheap insurance on a March start date.",
+  "hard": true,
+  "no": "009"
+ },
+ {
+  "id": "peds",
+  "w": [
+   20,
+   30
+  ],
+  "cat": "Medical",
+  "t": "Interview 2–3 pediatricians",
+  "why": "Confirm in-network, that they take newborns, and which hospital they round at.",
+  "no": "010"
+ },
+ {
+  "id": "reg",
+  "w": [
+   20,
+   28
+  ],
+  "cat": "Gear",
+  "t": "Build the registry",
+  "why": "Budget and premium column both filled so people can pick their own level.",
+  "no": "011"
+ },
+ {
+  "id": "life",
+  "w": [
+   20,
+   30
+  ],
+  "cat": "Money",
+  "t": "Get term life quotes on both of you",
+  "why": "20–30 year term, cheapest it will ever be. Underwriting takes 4–8 weeks so start early.",
+  "no": "012"
+ },
+ {
+  "id": "will",
+  "w": [
+   22,
+   32
+  ],
+  "cat": "Legal",
+  "t": "Will with a named guardian",
+  "why": "The guardian clause is the entire point. Everything else is paperwork.",
+  "no": "013"
+ },
+ {
+  "id": "gluc",
+  "w": [
+   24,
+   28
+  ],
+  "cat": "Medical",
+  "t": "Glucose test",
+  "why": "Schedule it, do not let it drift.",
+  "no": "014"
+ },
+ {
+  "id": "name",
+  "w": [
+   20,
+   36
+  ],
+  "cat": "Logistics",
+  "t": "Get the name list down to three",
+  "why": "Middle name, initials, and what it sounds like yelled across a yard.",
+  "no": "015"
+ },
+ {
+  "id": "moon",
+  "w": [
+   18,
+   28
+  ],
+  "cat": "Logistics",
+  "t": "Babymoon if you want one",
+  "why": "Most airlines stop boarding after ~36 weeks.",
+  "no": "016"
+ },
+ {
+  "id": "preg",
+  "w": [
+   26,
+   34
+  ],
+  "cat": "Admin",
+  "t": "Pre-register at the hospital",
+  "why": "Fills out admission paperwork now so you are not doing it mid-contraction.",
+  "no": "017"
+ },
+ {
+  "id": "class",
+  "w": [
+   26,
+   34
+  ],
+  "cat": "Medical",
+  "t": "Childbirth class plus infant CPR",
+  "why": "CPR is the one that matters. Book early, they fill.",
+  "no": "018"
+ },
+ {
+  "id": "htour",
+  "w": [
+   28,
+   34
+  ],
+  "cat": "Logistics",
+  "t": "Hospital tour: entrance after hours, parking, where to check in",
+  "why": "At 2am you want to be following a route you have already driven.",
+  "no": "019"
+ },
+ {
+  "id": "pump",
+  "w": [
+   28,
+   34
+  ],
+  "cat": "Gear",
+  "t": "Order the breast pump through insurance",
+  "why": "ACA generally makes it free. There is a window — usually 30 days before due.",
+  "no": "020"
+ },
+ {
+  "id": "fmla",
+  "w": [
+   30,
+   34
+  ],
+  "cat": "Admin",
+  "t": "File the leave paperwork",
+  "why": "FMLA requires 30 days notice for foreseeable leave.",
+  "hard": true,
+  "legal": true,
+  "no": "021"
+ },
+ {
+  "id": "nurs",
+  "w": [
+   28,
+   36
+  ],
+  "cat": "Home",
+  "t": "Nursery: paint low-VOC, assemble, anchor everything to studs",
+  "why": "Paint first, ventilate for a week, then bring furniture in.",
+  "no": "022"
+ },
+ {
+  "id": "show",
+  "w": [
+   28,
+   34
+  ],
+  "cat": "Logistics",
+  "t": "Baby shower",
+  "why": "Late enough to feel real, early enough that {Pn} is comfortable.",
+  "no": "023"
+ },
+ {
+  "id": "seat",
+  "w": [
+   30,
+   36
+  ],
+  "cat": "Gear",
+  "t": "Buy the car seat and register it with the manufacturer",
+  "why": "Registration is how you find out about recalls. Nobody does it.",
+  "no": "024"
+ },
+ {
+  "id": "inst",
+  "w": [
+   32,
+   37
+  ],
+  "cat": "Gear",
+  "t": "Install the seat and get it checked by a certified tech",
+  "why": "Fire stations and Safe Kids sites do it free. Most installs are wrong on the first try.",
+  "hard": true,
+  "no": "025"
+ },
+ {
+  "id": "gbs",
+  "w": [
+   35,
+   37
+  ],
+  "cat": "Medical",
+  "t": "Group B strep test",
+  "why": "Routine, around 36 weeks.",
+  "no": "026"
+ },
+ {
+  "id": "bag",
+  "w": [
+   34,
+   37
+  ],
+  "cat": "Logistics",
+  "t": "Hospital bag packed and in the car",
+  "why": "Packed by 36. Not a list on the fridge — actually in the trunk.",
+  "no": "027"
+ },
+ {
+  "id": "stock",
+  "w": [
+   32,
+   38
+  ],
+  "cat": "Home",
+  "t": "Stock the house — including {P} recovery supplies",
+  "why": "Newborn and size 1 diapers, wipes, peri bottle, pads, nipple cream, stool softener. The postpartum half is the half everyone forgets.",
+  "no": "028"
+ },
+ {
+  "id": "meal",
+  "w": [
+   33,
+   39
+  ],
+  "cat": "Home",
+  "t": "Freezer meals and a meal train",
+  "why": "Ten dinners in the freezer buys back two weeks of sanity.",
+  "no": "029"
+ },
+ {
+  "id": "wash",
+  "w": [
+   34,
+   38
+  ],
+  "cat": "Home",
+  "t": "Wash newborn clothes, set up the bassinet where you sleep",
+  "why": "Free-and-clear detergent. {He} will outgrow half of it in six weeks.",
+  "no": "030"
+ },
+ {
+  "id": "dcst",
+  "w": [
+   34,
+   39
+  ],
+  "cat": "Daycare",
+  "t": "Confirm the daycare start date and lock the spot",
+  "why": "Reconfirm in writing. Waitlist spots evaporate quietly.",
+  "hard": true,
+  "no": "031"
+ },
+ {
+  "id": "pets",
+  "w": [
+   34,
+   39
+  ],
+  "cat": "Logistics",
+  "t": "Line up the dog, the house, and the 2am ride",
+  "why": "Two people who can be at your house in an hour.",
+  "no": "032"
+ },
+ {
+  "id": "lead",
+  "w": [
+   36,
+   40
+  ],
+  "cat": "Admin",
+  "t": "Tell your manager the exact leave start plan",
+  "why": "Write the handoff doc now while you can think.",
+  "no": "033"
+ },
+ {
+  "id": "ssn",
+  "w": [
+   41,
+   42
+  ],
+  "cat": "Admin",
+  "t": "Birth certificate and Social Security card application",
+  "why": "The hospital hands you the form. Do it there.",
+  "no": "034"
+ },
+ {
+  "id": "add",
+  "w": [
+   41,
+   44
+  ],
+  "cat": "Money",
+  "t": "Add {him} to health insurance",
+  "why": "30 days from birth. Miss it and you wait for open enrollment. This is the hardest deadline on the whole board.",
+  "hard": true,
+  "legal": true,
+  "no": "035"
+ },
+ {
+  "id": "fsa",
+  "w": [
+   41,
+   44
+  ],
+  "cat": "Money",
+  "t": "Change your FSA and dependent-care FSA elections",
+  "why": "Birth is a qualifying life event and the window is the same 30 days. Dependent-care FSA is how you pay daycare pre-tax.",
+  "hard": true,
+  "legal": true,
+  "no": "036"
+ },
+ {
+  "id": "pv1",
+  "w": [
+   41,
+   41
+  ],
+  "cat": "Medical",
+  "t": "First pediatrician visit, 3–5 days after discharge",
+  "why": "Weight check and jaundice. Book it before you leave the hospital.",
+  "hard": true,
+  "legal": true,
+  "no": "037"
+ },
+ {
+  "id": "ben",
+  "w": [
+   42,
+   46
+  ],
+  "cat": "Legal",
+  "t": "Update beneficiaries on 401k, life, and the will",
+  "why": "The will names the guardian. The beneficiary forms move the money and they override the will.",
+  "no": "038"
+ },
+ {
+  "id": "ppd",
+  "w": [
+   41,
+   52
+  ],
+  "cat": "Partner",
+  "t": "Watch for postpartum depression and anxiety — {P} and yours",
+  "why": "Screening happens at the 2 and 6 week visits but it can show up later. Know what it looks like. Dads get it too, roughly 1 in 10.",
+  "no": "039"
+ },
+ {
+  "id": "529",
+  "w": [
+   44,
+   52
+  ],
+  "cat": "Money",
+  "t": "Open a 529",
+  "why": "Texas has no state deduction so shop nationally on fees. Small monthly beats a big someday.",
+  "no": "040"
+ },
+ {
+  "id": "thx",
+  "w": [
+   42,
+   48
+  ],
+  "cat": "Logistics",
+  "t": "Thank-you notes",
+  "why": "Do five a day or it becomes a monument.",
+  "no": "041"
+ },
+ {
+  "id": "dcpp",
+  "w": [
+   42,
+   48
+  ],
+  "cat": "Daycare",
+  "t": "Daycare enrollment packet and immunization records",
+  "why": "They will not take {him} without the shot record.",
+  "no": "042"
+ }
+]

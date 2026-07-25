@@ -1,0 +1,65 @@
+name: nudge
+
+on:
+  schedule:
+    # every hour; nudge.py itself decides whether today is actually due
+    # (quiet hours 9a-7p Central, and the cadence in guide.cadence_days)
+    - cron: "0 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only, send nothing"
+        type: boolean
+        default: true
+      week:
+        description: "Pretend it is this week (1-52), blank for real today"
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nudge
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+      TWILIO_TO: ${{ secrets.TWILIO_TO }}
+      BFG_CHANNEL: ${{ vars.BFG_CHANNEL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      - name: run nudge
+        run: |
+          ARGS=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          if [ -n "${{ inputs.week }}" ]; then ARGS="$ARGS --week ${{ inputs.week }}"; fi
+          python nudge.py $ARGS
+
+      - name: commit state
+        if: ${{ inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "baby-field-guide-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if ! git diff --quiet -- data/state.json; then
+            git add data/state.json
+            git commit -m "state: record send $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          else
+            echo "no state change, nothing to commit"
+          fi
