@@ -328,9 +328,9 @@ async function supaGet(phone){
 }
 
 async function supaPut(phone, state){
-  if(!supabaseConfigured() || !phone) return;
+  if(!supabaseConfigured() || !phone) return false;
   try{
-    await fetch(SUPABASE_URL+'/rest/v1/guide_state', {
+    const res = await fetch(SUPABASE_URL+'/rest/v1/guide_state', {
       method:'POST',
       headers:{
         apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+SUPABASE_ANON_KEY,
@@ -338,7 +338,9 @@ async function supaPut(phone, state){
       },
       body: JSON.stringify([{phone, state, updated_at:new Date().toISOString()}])
     });
-  }catch(e){ console.warn('supabase write failed', e); }
+    if(!res.ok) console.warn('supabase write rejected', res.status, await res.text().catch(()=>''));
+    return res.ok;
+  }catch(e){ console.warn('supabase write failed', e); return false; }
 }
 
 /* ============================================================
@@ -365,7 +367,10 @@ const Store = (() => {
         if(hasWS){ await window.storage.set(k, JSON.stringify(v)); }
         else if(hasLS){ localStorage.setItem(k, JSON.stringify(v)); }
       }catch(e){ console.warn('save failed, holding in memory', e); }
-      if(v && v.phone) supaPut(v.phone, v);
+      // awaited on purpose: fire-and-forget here would let a mobile
+      // browser cancel the request mid-flight the moment the tab
+      // backgrounds, right after the UI claims "Saved".
+      if(v && v.phone) await supaPut(v.phone, v);
     }
   };
 })();
@@ -1183,6 +1188,18 @@ document.addEventListener('change', async e=>{
     $('#gate').classList.add('hidden');
     $('#app').classList.remove('hidden');
     draw();
+    // local copy shown immediately so the app never blocks on the
+    // network, then reconciled against whatever's newest in Supabase —
+    // otherwise a device that already has local data never learns
+    // about edits made on a different device.
+    if(S.phone && supabaseConfigured()){
+      const remote = await supaGet(S.phone);
+      if(remote && remote.due){
+        S = Object.assign(S, remote);
+        await Store.set(KEY, S);
+        draw();
+      }
+    }
     return;
   }
   // default the picker to ~30 weeks out so it is one click to try
