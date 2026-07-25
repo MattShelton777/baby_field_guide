@@ -12,6 +12,18 @@
    "verse": "Psalm 127:3",
    "segments": 3,
    "ref": "telegram:4"
+  },
+  {
+   "sent_at": "2026-07-25T04:44:38+00:00",
+   "week": 20,
+   "entries": [
+    "004",
+    "009",
+    "005"
+   ],
+   "verse": "Proverbs 22:6",
+   "segments": 3,
+   "ref": "telegram:6"
   }
  ]
 }
