@@ -424,10 +424,26 @@ const DAYCARES = [
   {n:'[Placeholder] Little Oaks Early School', r:4.9, rev:57,  home:16, work:7, till:'5:30p', wait:'~12 mo', tuition:'$1,600/mo', tags:['Highest rated','Closes early','Long waitlist']}
 ];
 
+/* fixed vetting questions — same list whether the search below is
+   live Places data or the placeholder rows. Answers are typed in
+   after a tour, not generated. */
+const QUESTIONS = [
+  {id:'ratio',    q:'What is the infant-room ratio and max group size, and how does that change as {he} moves rooms?'},
+  {id:'turnover', q:'What is staff turnover in the infant room, and how long has the lead teacher been there?'},
+  {id:'illness',  q:'What is the illness policy — fever threshold, when kids get sent home, and does a sick day affect tuition?'},
+  {id:'access',   q:'Can you drop in unannounced, and is there camera access?'},
+  {id:'food',     q:'How is food, formula, and allergy handling managed, and can you bring your own?'},
+  {id:'security', q:'What is the pickup verification process, and what happens if someone not on the list shows up?'},
+  {id:'cost',     q:'How often does tuition increase, and what is the notice period if you need to leave?'},
+  {id:'settle',   q:'What does the first two weeks look like for a new infant — shortened days, a primary caregiver assigned?'}
+];
+
 /* ============================================================
    STATE
    ============================================================ */
-let S = { due:null, name:'Baby Boy', sex:'boy', partner:'', done:{}, tier:'budget', profile:{} };
+let S = { due:null, name:'Baby Boy', sex:'boy', partner:'', done:{}, tier:'budget', profile:{},
+          pickup:'home', pickupTime:'', startDate:'', daycareNotes:{} };
+let dcCache = null;
 
 /* ---- pronouns + partner name -------------------------------
    Content is written with tokens, never hardcoded pronouns.
@@ -568,17 +584,203 @@ function renderRegistry(){
   $('#v-registry').innerHTML = h;
 }
 
-function renderDaycare(){
-  let h = '<div class="banner"><b>Placeholder data.</b> Phase 4 swaps this array for Google Places: Text Search for candidates, Place Details for hours and ratings, Distance Matrix for drive time from home and from the office. Names below are fake on purpose.</div>';
+function vettingChecklistHTML(id){
+  const n = ((S.daycareNotes[id]||{}).q) || {};
+  let h = '<details class="dc-questions" style="margin-top:10px">'
+        + '<summary class="chip" style="cursor:pointer;display:inline-block">Questions to ask when you visit</summary>'
+        + '<div style="margin-top:10px">';
+  QUESTIONS.forEach(item=>{
+    h += '<div style="margin-bottom:10px"><div class="t-why" style="margin-bottom:4px">'+fill(item.q)+'</div>'
+       + '<textarea data-dcnote data-dcid="'+id+'" data-qid="'+item.id+'" placeholder="Their answer, once you visit" style="min-height:44px">'+esc(n[item.id]||'')+'</textarea></div>';
+  });
+  h += '</div></details>';
+  return h;
+}
+
+function waitlistEditorHTML(id){
+  const n = S.daycareNotes[id] || {};
+  return '<div class="t-meta" style="margin-top:8px">'
+    + '<label style="margin:0;display:inline-flex;align-items:center;gap:6px;text-transform:none;font-family:inherit;font-size:12.5px;color:var(--ink-soft)">Waitlist, months'
+    + '<input type="text" inputmode="numeric" style="width:48px;padding:4px 6px" data-waitmonths="'+id+'" value="'+esc(n.waitMonths||'')+'"></label>'
+    + '<label style="margin:0;display:inline-flex;align-items:center;gap:6px;text-transform:none;font-family:inherit;font-size:12.5px;color:var(--ink-soft)">Tuition'
+    + '<input type="text" style="width:90px;padding:4px 6px" data-tuition="'+id+'" value="'+esc(n.tuition||'')+'" placeholder="$/mo"></label>'
+    + '</div>';
+}
+
+function mockDaycareHTML(){
+  let h = '<div class="banner"><b>Placeholder data.</b> Add a Google Maps API key and your home/work addresses on the Setup tab for a live search — Text Search for candidates, Place Details for hours and ratings, Distance Matrix for real drive time. Names below are fake on purpose.</div>';
   DAYCARES.forEach(d=>{
     h += '<div class="dc"><div><h3>'+d.n+'</h3>'
        + '<div class="t-why">'+d.home+' min from home · '+d.work+' min from work · open till '+d.till+' · '+d.tuition+' · waitlist '+d.wait+'</div>'
-       + '<div class="attrs">'+d.tags.map(t=>'<span class="chip">'+t+'</span>').join('')+'</div></div>'
+       + '<div class="attrs">'+d.tags.map(t=>'<span class="chip">'+t+'</span>').join('')+'</div>'
+       + vettingChecklistHTML(d.n)
+       + '</div>'
        + '<div class="score"><b>'+d.r+'</b><i>'+d.rev+' reviews</i></div></div>';
   });
-  h += '<div class="hint" style="margin-top:16px">Ranking weight in the real version: 35% drive time from whichever parent does pickup, 25% rating (floored at 20 reviews), 20% waitlist vs your start date, 20% closing time against your latest realistic pickup.</div>';
-  h += verseBlock();
-  $('#v-daycare').innerHTML = h;
+  h += '<div class="hint" style="margin-top:16px">Ranking weight once live: 35% drive time from whichever parent does pickup, 25% rating (floored at 20 reviews), 20% waitlist vs your start date, 20% closing time against your latest realistic pickup.</div>';
+  return h;
+}
+
+function parsePickupTime(s){
+  if(!s) return null;
+  const m = /^(\d{1,2}):?(\d{2})?\s*([ap])/i.exec(s.trim());
+  if(!m) return null;
+  let h = Number(m[1])%12;
+  if(/p/i.test(m[3])) h += 12;
+  return h*60 + Number(m[2]||0);
+}
+
+function rankDaycares(list){
+  const startDate = S.startDate ? new Date(S.startDate+'T12:00:00') : null;
+  const pickupMin = parsePickupTime(S.pickupTime);
+  return list.map(({place,driveMin})=>{
+    const n = S.daycareNotes[place.place_id] || {};
+    const rating = place.rating || 0;
+    const reviews = place.user_ratings_total || 0;
+    const ratingScore = (rating/5) * Math.min(1, reviews/20);
+    const driveScore = driveMin==null ? 0.4 : Math.max(0, 1 - driveMin/45);
+
+    let waitScore = 0.5, waitLabel = 'call to find out';
+    if(n.waitMonths !== undefined && n.waitMonths !== '' && startDate){
+      const readyBy = new Date(); readyBy.setMonth(readyBy.getMonth() + Number(n.waitMonths));
+      waitScore = readyBy <= startDate ? 1 : 0.15;
+      waitLabel = n.waitMonths+' mo wait (you entered)';
+    }
+
+    let closeScore = 0.5, closeLabel = 'hours unknown';
+    const today = place.opening_hours && place.opening_hours.periods && place.opening_hours.periods[1];
+    if(today && today.close){
+      const h = Number(today.close.time.slice(0,2)), m = Number(today.close.time.slice(2));
+      closeLabel = 'closes '+((h%12)||12)+':'+String(m).padStart(2,'0')+(h>=12?'p':'a');
+      closeScore = pickupMin!=null ? (h*60+m >= pickupMin ? 1 : 0.1) : 0.5;
+    }
+
+    const score = driveScore*0.35 + ratingScore*0.25 + waitScore*0.20 + closeScore*0.20;
+    return {place, driveMin, rating, reviews, waitLabel, closeLabel, tuition:n.tuition, score:Math.round(score*100)};
+  }).sort((a,b)=>b.score-a.score);
+}
+
+function daycareResultsHTML(ranked){
+  let h = '<div class="banner">Live results from Google Places, ranked by 35% drive time + 25% rating (floored at 20 reviews) + 20% waitlist vs your start date + 20% closing time vs your pickup time. Google has no waitlist or tuition data — enter those after you call, and the ranking updates.</div>'
+        + '<button class="btn ghost" id="dc-refresh" style="margin-bottom:16px">Refresh search</button>';
+  ranked.forEach(r=>{
+    const p = r.place;
+    h += '<div class="dc"><div><h3>'+esc(p.name)+'</h3>'
+       + '<div class="t-why">'+(r.driveMin!=null? r.driveMin+' min drive':'drive time unknown')+' · '+(p.rating||'—')+' ('+(p.user_ratings_total||0)+' reviews) · '+r.closeLabel+' · '+r.waitLabel+(r.tuition?' · '+esc(r.tuition):'')+'</div>'
+       + '<div class="attrs">'+(p.formatted_phone_number?'<span class="chip">'+esc(p.formatted_phone_number)+'</span>':'')
+       + (p.website?'<a class="chip" href="'+esc(p.website)+'" target="_blank" rel="noopener">Website</a>':'')+'</div>'
+       + waitlistEditorHTML(p.place_id)
+       + vettingChecklistHTML(p.place_id)
+       + '</div>'
+       + '<div class="score"><b>'+r.score+'</b><i>match score</i></div></div>';
+  });
+  return h;
+}
+
+function loadMaps(){
+  const key = S.profile.mapsKey;
+  if(!key) return Promise.reject(new Error('no maps key on file'));
+  if(window.google && window.google.maps && window.google.maps.places) return Promise.resolve();
+  if(window.__mapsLoading) return window.__mapsLoading;
+  window.__mapsLoading = new Promise((resolve,reject)=>{
+    window.__gmapsReady = ()=>resolve();
+    const s = document.createElement('script');
+    s.src = 'https://maps.googleapis.com/maps/api/js?key='+encodeURIComponent(key)+'&libraries=places&callback=__gmapsReady';
+    s.onerror = ()=>reject(new Error('failed to load the Google Maps script — check the API key'));
+    document.head.appendChild(s);
+  });
+  return window.__mapsLoading;
+}
+
+const AC_FIELDS = [['s-home','home'],['s-work','work'],['s-work2','work2']];
+function wireAutocomplete(){
+  AC_FIELDS.forEach(([id,key])=>{
+    const el = document.getElementById(id);
+    if(!el || el.dataset.acWired) return;
+    el.dataset.acWired = '1';
+    const ac = new google.maps.places.Autocomplete(el, {fields:['formatted_address','geometry']});
+    ac.addListener('place_changed', async ()=>{
+      const p = ac.getPlace();
+      if(!p.geometry) return;
+      S.profile[key] = p.formatted_address || el.value;
+      S.profile[key+'Geo'] = {lat:p.geometry.location.lat(), lng:p.geometry.location.lng()};
+      el.value = S.profile[key];
+      dcCache = null;
+      await Store.set(KEY,S);
+    });
+  });
+}
+
+function searchDaycares(){
+  return loadMaps().then(()=> new Promise((resolve,reject)=>{
+    const svc = new google.maps.places.PlacesService(document.createElement('div'));
+    const queries = [];
+    if(S.profile.homeGeo) queries.push(new google.maps.LatLng(S.profile.homeGeo.lat, S.profile.homeGeo.lng));
+    if(S.profile.workGeo) queries.push(new google.maps.LatLng(S.profile.workGeo.lat, S.profile.workGeo.lng));
+    if(!queries.length){ reject(new Error('enter a home address on Setup first')); return; }
+
+    const textSearch = (location)=> new Promise((res,rej)=>{
+      svc.textSearch({query:'infant daycare childcare center', location, radius:12000}, (results,status)=>{
+        if(status===google.maps.places.PlacesServiceStatus.OK) res(results||[]);
+        else if(status===google.maps.places.PlacesServiceStatus.ZERO_RESULTS) res([]);
+        else rej(new Error('places search failed: '+status));
+      });
+    });
+
+    Promise.all(queries.map(textSearch)).then(batches=>{
+      const byId = new Map();
+      batches.flat().forEach(r=>{ if(!byId.has(r.place_id)) byId.set(r.place_id, r); });
+      const candidates = [...byId.values()].slice(0,12);
+      if(!candidates.length){ resolve([]); return; }
+
+      const getDetails = (placeId)=> new Promise(res=>{
+        svc.getDetails({placeId, fields:['name','formatted_address','geometry','rating','user_ratings_total','opening_hours','formatted_phone_number','website']}, (place,status)=>{
+          res(status===google.maps.places.PlacesServiceStatus.OK ? place : null);
+        });
+      });
+
+      Promise.all(candidates.map(c=>getDetails(c.place_id))).then(details=>{
+        const valid = details.filter(Boolean);
+        if(!valid.length){ resolve([]); return; }
+        const pickupGeo = S.profile[(S.pickup||'home')+'Geo'] || S.profile.homeGeo;
+        const dm = new google.maps.DistanceMatrixService();
+        dm.getDistanceMatrix({
+          origins:[new google.maps.LatLng(pickupGeo.lat, pickupGeo.lng)],
+          destinations: valid.map(p=>p.geometry.location),
+          travelMode:'DRIVING'
+        },(res,status)=>{
+          const elements = (status==='OK' && res.rows[0]) ? res.rows[0].elements : [];
+          const combined = valid.map((place,i)=>({
+            place,
+            driveMin: elements[i] && elements[i].status==='OK' ? Math.round(elements[i].duration.value/60) : null
+          }));
+          dcCache = combined;
+          resolve(rankDaycares(combined));
+        });
+      });
+    }).catch(reject);
+  }));
+}
+
+function renderDaycare(){
+  const el = $('#v-daycare');
+  if(!S.profile.mapsKey || !S.profile.homeGeo){
+    el.innerHTML = mockDaycareHTML() + verseBlock();
+    return;
+  }
+  if(dcCache){
+    el.innerHTML = daycareResultsHTML(rankDaycares(dcCache)) + verseBlock();
+    return;
+  }
+  el.innerHTML = '<div class="hint">Searching nearby daycares…</div>';
+  searchDaycares().then(ranked=>{
+    if(view !== 'daycare') return;
+    el.innerHTML = daycareResultsHTML(ranked) + verseBlock();
+  }).catch(err=>{
+    if(view !== 'daycare') return;
+    console.warn(err);
+    el.innerHTML = mockDaycareHTML() + '<div class="hint" style="margin-top:16px">Live search failed: '+esc(err.message)+'. Showing placeholder data instead.</div>' + verseBlock();
+  });
 }
 
 /* ---- SMS encoding math ------------------------------------
@@ -660,7 +862,22 @@ function renderSetup(){
     + '<div class="hint">This block gets pasted into the system prompt. It is the difference between a generic nudge and one that sounds like it knows you.</div>'
     + '<button class="btn" id="s-save">Save profile</button> '
     + '<button class="btn ghost" id="s-reset">Reset all checkboxes</button></div>'
+    + '<div class="card" style="margin-top:20px"><div class="eyebrow">Daycare search</div>'
+    + '<label for="s-mapskey">Google Maps Platform API key</label>'
+    + '<input type="text" id="s-mapskey" placeholder="AIza..." value="'+esc(S.profile.mapsKey||'')+'">'
+    + '<div class="hint">Used only in this browser tab to call Places, Text Search, and Distance Matrix directly — never sent anywhere else. Restrict it by HTTP referrer to your real domain once you\'re not testing from a local file.</div>'
+    + '<label>Who does pickup, and from where</label><select id="s-pickup">'
+    + '<option value="work"'+(S.pickup==='work'?' selected':'')+'>You, from your work</option>'
+    + '<option value="work2"'+(S.pickup==='work2'?' selected':'')+'>'+esc(S.partner||'Partner')+', from her work</option>'
+    + '<option value="home"'+(S.pickup==='home'?' selected':'')+'>Whoever is home</option>'
+    + '</select>'
+    + '<label for="s-pickuptime">Latest realistic pickup time</label>'
+    + '<input type="text" id="s-pickuptime" placeholder="5:30 PM" value="'+esc(S.pickupTime||'')+'">'
+    + '<label for="s-startdate">Target daycare start date</label>'
+    + '<input type="date" id="s-startdate" value="'+esc(S.startDate||'')+'">'
+    + '<button class="btn" id="s-save2" style="margin-top:20px">Save daycare settings</button></div>'
     + verseBlock();
+  loadMaps().then(wireAutocomplete).catch(()=>{});
 }
 
 const RENDER = {timeline:renderTimeline, registry:renderRegistry, daycare:renderDaycare, nudge:renderNudge, setup:renderSetup};
@@ -695,8 +912,8 @@ document.addEventListener('click', async e=>{
     S.due = $('#s-due').value || S.due;
     S.name = $('#s-name').value || S.name;
     S.partner = $('#s-partner').value.trim();
-    S.profile = {home:$('#s-home').value, work:$('#s-work').value, work2:$('#s-work2').value,
-                 phone:$('#s-phone').value, notes:$('#s-notes').value};
+    Object.assign(S.profile, {home:$('#s-home').value, work:$('#s-work').value, work2:$('#s-work2').value,
+                 phone:$('#s-phone').value, notes:$('#s-notes').value});
     await Store.set(KEY,S);
     e.target.textContent = 'Saved';
     setTimeout(()=>{ e.target.textContent='Save profile'; },1400);
@@ -704,6 +921,21 @@ document.addEventListener('click', async e=>{
     return;
   }
   if(e.target.id === 's-reset'){ S.done = {}; await Store.set(KEY,S); draw(); return; }
+
+  if(e.target.id === 's-save2'){
+    S.profile.mapsKey = $('#s-mapskey').value.trim();
+    S.pickup = $('#s-pickup').value;
+    S.pickupTime = $('#s-pickuptime').value.trim();
+    S.startDate = $('#s-startdate').value;
+    dcCache = null;
+    await Store.set(KEY,S);
+    e.target.textContent = 'Saved';
+    setTimeout(()=>{ e.target.textContent='Save daycare settings'; },1400);
+    draw();
+    return;
+  }
+
+  if(e.target.id === 'dc-refresh'){ dcCache = null; draw(); return; }
 
   const gs = e.target.closest('#g-sex button');
   if(gs){
@@ -731,6 +963,30 @@ document.addEventListener('click', async e=>{
     await Store.set(KEY,S);
     $('#gate').classList.add('hidden'); $('#app').classList.remove('hidden');
     draw();
+  }
+});
+
+document.addEventListener('change', async e=>{
+  const note = e.target.closest('[data-dcnote]');
+  if(note){
+    const id = note.dataset.dcid, qid = note.dataset.qid;
+    S.daycareNotes[id] = S.daycareNotes[id] || {q:{}};
+    S.daycareNotes[id].q[qid] = note.value;
+    await Store.set(KEY,S);
+    return;
+  }
+  const wm = e.target.closest('[data-waitmonths]');
+  const tu = e.target.closest('[data-tuition]');
+  if(wm || tu){
+    const id = (wm||tu).dataset.waitmonths || (wm||tu).dataset.tuition;
+    S.daycareNotes[id] = S.daycareNotes[id] || {};
+    const waitEl = document.querySelector('[data-waitmonths="'+id+'"]');
+    const tuitionEl = document.querySelector('[data-tuition="'+id+'"]');
+    if(waitEl) S.daycareNotes[id].waitMonths = waitEl.value;
+    if(tuitionEl) S.daycareNotes[id].tuition = tuitionEl.value;
+    await Store.set(KEY,S);
+    draw();
+    return;
   }
 });
 
