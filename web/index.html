@@ -206,21 +206,31 @@ textarea{min-height:76px;resize:vertical}
   <div class="card">
     <div class="eyebrow">First edition — one-time setup</div>
     <h1>The Baby<br>Field&nbsp;Guide</h1>
-    <p>Forty-two entries, each with the season you'll encounter it. Put in the due date and it opens to where you are.</p>
-    <label for="g-due">Due date</label>
-    <input type="date" id="g-due">
-    <label>Sex</label>
-    <div class="toggle" id="g-sex">
-      <button data-sex="boy" aria-pressed="true">Boy</button>
-      <button data-sex="girl" aria-pressed="false">Girl</button>
-      <button data-sex="surprise" aria-pressed="false">Not finding out</button>
+
+    <div id="gate-phone-step">
+      <p>Enter your phone number first. Both partners entering the same number see the same checklist, from any device.</p>
+      <label for="g-phone">Phone number</label>
+      <input type="text" id="g-phone" placeholder="+18175551234">
+      <button class="btn" id="g-phone-go">Continue</button>
     </div>
-    <label for="g-name">What you're calling him for now</label>
-    <input type="text" id="g-name" placeholder="Baby Boy" value="Baby Boy">
-    <label for="g-partner">Your partner's first name</label>
-    <input type="text" id="g-partner" placeholder="First name">
-    <div class="hint">Used instead of "her" so the guide never leaves you guessing who a line is about.</div>
-    <button class="btn" id="g-go">Open the guide</button>
+
+    <div id="gate-details-step" class="hidden">
+      <p>Forty-two entries, each with the season you'll encounter it. Put in the due date and it opens to where you are.</p>
+      <label for="g-due">Due date</label>
+      <input type="date" id="g-due">
+      <label>Sex</label>
+      <div class="toggle" id="g-sex">
+        <button data-sex="boy" aria-pressed="true">Boy</button>
+        <button data-sex="girl" aria-pressed="false">Girl</button>
+        <button data-sex="surprise" aria-pressed="false">Not finding out</button>
+      </div>
+      <label for="g-name">What you're calling him for now</label>
+      <input type="text" id="g-name" placeholder="Baby Boy" value="Baby Boy">
+      <label for="g-partner">Your partner's first name</label>
+      <input type="text" id="g-partner" placeholder="First name">
+      <div class="hint">Used instead of "her" so the guide never leaves you guessing who a line is about.</div>
+      <button class="btn" id="g-go">Open the guide</button>
+    </div>
   </div>
 </div>
 
@@ -280,10 +290,48 @@ textarea{min-height:76px;resize:vertical}
 
 <script>
 /* ============================================================
+   SUPABASE — shared state keyed by phone number.
+   Not real auth: the phone number is a shared lookup key, not a
+   verified credential. Fine for a two-person household checklist,
+   not fine if this were ever multi-tenant. Leave the constants
+   blank to keep the app fully local-only, same as before.
+   ============================================================ */
+const SUPABASE_URL = '';
+const SUPABASE_ANON_KEY = '';
+function supabaseConfigured(){ return !!(SUPABASE_URL && SUPABASE_ANON_KEY); }
+function normalizePhone(p){ return (p||'').replace(/[^\d+]/g,''); }
+
+async function supaGet(phone){
+  if(!supabaseConfigured() || !phone) return null;
+  try{
+    const res = await fetch(SUPABASE_URL+'/rest/v1/guide_state?phone=eq.'+encodeURIComponent(phone)+'&select=state', {
+      headers:{ apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+SUPABASE_ANON_KEY }
+    });
+    if(!res.ok) return null;
+    const rows = await res.json();
+    return rows[0] ? rows[0].state : null;
+  }catch(e){ console.warn('supabase read failed', e); return null; }
+}
+
+async function supaPut(phone, state){
+  if(!supabaseConfigured() || !phone) return;
+  try{
+    await fetch(SUPABASE_URL+'/rest/v1/guide_state', {
+      method:'POST',
+      headers:{
+        apikey:SUPABASE_ANON_KEY, Authorization:'Bearer '+SUPABASE_ANON_KEY,
+        'Content-Type':'application/json', Prefer:'resolution=merge-duplicates'
+      },
+      body: JSON.stringify([{phone, state, updated_at:new Date().toISOString()}])
+    });
+  }catch(e){ console.warn('supabase write failed', e); }
+}
+
+/* ============================================================
    STORAGE SHIM
-   Works inside Claude (window.storage) and on a real host
-   (localStorage). Swap this one object for a Supabase client
-   in Phase 1 and nothing else in the file changes.
+   Local storage always saves first so the app never blocks on
+   the network. If S.phone is set and Supabase is configured,
+   every save also syncs to the shared row for that phone number.
    ============================================================ */
 const Store = (() => {
   const mem = {};
@@ -300,9 +348,10 @@ const Store = (() => {
     async set(k,v){
       mem[k]=v;
       try{
-        if(hasWS){ await window.storage.set(k, JSON.stringify(v)); return; }
-        if(hasLS){ localStorage.setItem(k, JSON.stringify(v)); }
+        if(hasWS){ await window.storage.set(k, JSON.stringify(v)); }
+        else if(hasLS){ localStorage.setItem(k, JSON.stringify(v)); }
       }catch(e){ console.warn('save failed, holding in memory', e); }
+      if(v && v.phone) supaPut(v.phone, v);
     }
   };
 })();
@@ -442,7 +491,7 @@ const QUESTIONS = [
    STATE
    ============================================================ */
 let S = { due:null, name:'Baby Boy', sex:'boy', partner:'', done:{}, tier:'budget', profile:{},
-          pickup:'home', pickupTime:'', startDate:'', daycareNotes:{} };
+          pickup:'home', pickupTime:'', startDate:'', daycareNotes:{}, phone:'' };
 let dcCache = null;
 
 /* ---- pronouns + partner name -------------------------------
@@ -964,6 +1013,26 @@ document.addEventListener('click', async e=>{
     $('#gate').classList.add('hidden'); $('#app').classList.remove('hidden');
     draw();
   }
+
+  if(e.target.id === 'g-phone-go'){
+    const phoneEl = $('#g-phone');
+    const phone = normalizePhone(phoneEl.value);
+    if(!phone){ phoneEl.focus(); phoneEl.style.borderColor='var(--clay)'; return; }
+    e.target.textContent = 'Checking…'; e.target.disabled = true;
+    const existing = await supaGet(phone);
+    if(existing && existing.due){
+      S = Object.assign(S, existing, {phone});
+      await Store.set(KEY, S);
+      $('#gate').classList.add('hidden'); $('#app').classList.remove('hidden');
+      draw();
+    } else {
+      S.phone = phone;
+      $('#gate-phone-step').classList.add('hidden');
+      $('#gate-details-step').classList.remove('hidden');
+      e.target.textContent = 'Continue'; e.target.disabled = false;
+    }
+    return;
+  }
 });
 
 document.addEventListener('change', async e=>{
@@ -1000,10 +1069,16 @@ document.addEventListener('change', async e=>{
     $('#gate').classList.add('hidden');
     $('#app').classList.remove('hidden');
     draw();
-  } else {
-    // default the picker to ~30 weeks out so it is one click to try
-    const d = new Date(Date.now() + 210*DAY);
-    $('#g-due').value = d.toISOString().slice(0,10);
+    return;
+  }
+  // default the picker to ~30 weeks out so it is one click to try
+  const d = new Date(Date.now() + 210*DAY);
+  $('#g-due').value = d.toISOString().slice(0,10);
+  if(!supabaseConfigured()){
+    // no shared backend on file — skip straight to the details step,
+    // same behavior as before this feature existed
+    $('#gate-phone-step').classList.add('hidden');
+    $('#gate-details-step').classList.remove('hidden');
   }
 })();
 </script>
