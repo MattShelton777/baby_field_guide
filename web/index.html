@@ -147,11 +147,20 @@ body{
   font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink);
 }
 .toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper-2)}
-.reg-row{display:grid;grid-template-columns:130px 1fr 90px;gap:16px;padding:11px 0;border-bottom:1px solid var(--rule);align-items:baseline}
-.reg-row .cat{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint)}
+.reg-row{
+  display:grid;grid-template-columns:19px 130px 1fr 90px;grid-template-areas:"box cat pick price";
+  gap:16px;padding:11px 0;border-bottom:1px solid var(--rule);align-items:baseline;
+}
+.reg-row.done{opacity:.42}
+.reg-row.done .pick b{text-decoration:line-through}
+.reg-row .box{grid-area:box}
+.reg-row .cat{grid-area:cat;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint)}
+.reg-row .pick{grid-area:pick}
 .reg-row .pick b{font-weight:600}
 .reg-row .pick p{color:var(--ink-soft);font-size:13px;margin-top:1px}
-.reg-row .price{font-family:'IBM Plex Mono',monospace;font-size:13px;text-align:right}
+.reg-row .pick a{color:var(--cyan);font-size:12px;text-decoration:none;white-space:nowrap}
+.reg-row .pick a:hover{text-decoration:underline}
+.reg-row .price{grid-area:price;font-family:'IBM Plex Mono',monospace;font-size:13px;text-align:right}
 
 /* ---------- daycare ---------- */
 .banner{background:var(--amber-soft);border-left:3px solid var(--amber);padding:13px 16px;margin-bottom:26px;font-size:13.5px;color:#5C3A0A}
@@ -191,7 +200,7 @@ textarea{min-height:76px;resize:vertical}
 
 @media (max-width:620px){
   .bigcount .n{font-size:56px}
-  .reg-row{grid-template-columns:1fr;gap:4px}
+  .reg-row{grid-template-columns:19px 1fr;grid-template-areas:"box cat" "box pick" "box price";gap:4px}
   .reg-row .price{text-align:left}
   .dc{grid-template-columns:1fr}
   .dc .score{text-align:left}
@@ -496,7 +505,7 @@ const QUESTIONS = [
    STATE
    ============================================================ */
 let S = { due:null, name:'Baby Boy', sex:'boy', partner:'', done:{}, tier:'budget', profile:{},
-          pickup:'home', pickupTime:'', startDate:'', daycareNotes:{}, phone:'' };
+          pickup:'home', pickupTime:'', startDate:'', daycareNotes:{}, phone:'', registryDone:{} };
 let dcCache = null;
 
 /* ---- pronouns + partner name -------------------------------
@@ -616,22 +625,33 @@ function renderTimeline(){
   $('#v-timeline').innerHTML = h;
 }
 
+function regId(cat, item){ return (cat+'::'+item).toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
+function amazonSearchUrl(item, pick){
+  return 'https://www.amazon.com/s?k='+encodeURIComponent(fill(item)+' '+pick);
+}
+
 function renderRegistry(){
+  const doneCount = REGISTRY.filter(([cat,item])=>S.registryDone[regId(cat,item)]).length;
   let h = '<div class="eyebrow" style="margin-bottom:8px">Registry — both columns filled</div>'
+        + '<div class="statline" style="margin:0 0 16px">'
+        + '<div class="stat"><b>'+doneCount+' / '+REGISTRY.length+'</b><i>Added or ordered</i></div></div>'
         + '<div class="toggle">'
         + '<button data-tier="budget" aria-pressed="'+(S.tier==='budget')+'">Budget</button>'
         + '<button data-tier="premium" aria-pressed="'+(S.tier==='premium')+'">Higher end</button></div>';
   let lastCat='', total=0;
   REGISTRY.forEach(([cat,item,b,p,price])=>{
     const pick = S.tier==='budget'?b:p, cost = S.tier==='budget'?price[0]:price[1];
+    const id = regId(cat,item), checked = !!S.registryDone[id];
     total += cost;
-    h += '<div class="reg-row"><div class="cat">'+(cat===lastCat?'':cat)+'</div>'
-       + '<div class="pick"><b>'+fill(item)+'</b><p>'+pick+'</p></div>'
+    h += '<div class="reg-row'+(checked?' done':'')+'">'
+       + '<button class="box" role="checkbox" aria-checked="'+checked+'" data-regid="'+id+'" aria-label="'+esc(fill(item))+'"></button>'
+       + '<div class="cat">'+(cat===lastCat?'':cat)+'</div>'
+       + '<div class="pick"><b>'+fill(item)+'</b><p>'+pick+' — <a href="'+amazonSearchUrl(item,pick)+'" target="_blank" rel="noopener">Search Amazon</a></p></div>'
        + '<div class="price">'+(cost===0?'—':'$'+cost)+'</div></div>';
     lastCat = cat;
   });
   h += '<div class="reg-row" style="border-bottom:none;border-top:1.5px solid var(--ink);margin-top:6px">'
-     + '<div class="cat">Total</div><div class="pick"><b>'+(S.tier==='budget'?'Budget build':'Higher-end build')+'</b>'
+     + '<div></div><div class="cat">Total</div><div class="pick"><b>'+(S.tier==='budget'?'Budget build':'Higher-end build')+'</b>'
      + '<p>Rough order of magnitude. Prices drift — verify before you buy.</p></div>'
      + '<div class="price">$'+total.toLocaleString()+'</div></div>';
   h += verseBlock();
@@ -1011,6 +1031,14 @@ document.addEventListener('click', async e=>{
     document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected', b===tab));
     document.querySelectorAll('main section').forEach(s=>s.classList.add('hidden'));
     $('#v-'+view).classList.remove('hidden');
+    draw();
+    return;
+  }
+  const regBox = e.target.closest('[data-regid]');
+  if(regBox){
+    const id = regBox.dataset.regid;
+    S.registryDone[id] = !S.registryDone[id];
+    await Store.set(KEY, S);
     draw();
     return;
   }
