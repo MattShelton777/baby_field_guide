@@ -299,6 +299,11 @@ textarea{min-height:76px;resize:vertical}
 const SUPABASE_URL = 'https://wadnocljvgjghvegnuju.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZG5vY2xqdmdqZ2h2ZWdudWp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMDYyODYsImV4cCI6MjEwMDU4MjI4Nn0.cx_fx4nSm-TklPbUIPo13SZWUpvGhRXuxasPGiARFMQ';
 function supabaseConfigured(){ return !!(SUPABASE_URL && SUPABASE_ANON_KEY); }
+
+/* Default Google Maps key, used until/unless someone overrides it in
+   Setup. Restricted by HTTP referrer once hosted for real. */
+const DEFAULT_MAPS_KEY = 'AIzaSyDtgfnuKF3NxKIYmEeFGS88YoTGc8chA-0';
+function mapsKey(){ return S.profile.mapsKey || DEFAULT_MAPS_KEY; }
 function normalizePhone(p){ return (p||'').replace(/[^\d+]/g,''); }
 
 async function supaGet(phone){
@@ -787,7 +792,7 @@ function daycareResultsHTML(ranked){
 }
 
 function loadMaps(){
-  const key = S.profile.mapsKey;
+  const key = mapsKey();
   if(!key) return Promise.reject(new Error('no maps key on file'));
   if(window.google && window.google.maps && window.google.maps.places) return Promise.resolve();
   if(window.__mapsLoading) return window.__mapsLoading;
@@ -873,7 +878,7 @@ function searchDaycares(){
 
 function renderDaycare(){
   const el = $('#v-daycare');
-  if(!S.profile.mapsKey || !S.profile.homeGeo){
+  if(!mapsKey() || !S.profile.homeGeo){
     el.innerHTML = mockDaycareHTML() + verseBlock();
     return;
   }
@@ -973,8 +978,8 @@ function renderSetup(){
     + '<button class="btn ghost" id="s-reset">Reset all checkboxes</button></div>'
     + '<div class="card" style="margin-top:20px"><div class="eyebrow">Daycare search</div>'
     + '<label for="s-mapskey">Google Maps Platform API key</label>'
-    + '<input type="text" id="s-mapskey" placeholder="AIza..." value="'+esc(S.profile.mapsKey||'')+'">'
-    + '<div class="hint">Used only in this browser tab to call Places, Text Search, and Distance Matrix directly — never sent anywhere else. Restrict it by HTTP referrer to your real domain once you\'re not testing from a local file.</div>'
+    + '<input type="text" id="s-mapskey" placeholder="AIza... (a default key is already active)" value="'+esc(S.profile.mapsKey||'')+'">'
+    + '<div class="hint">A default key is already wired in — leave this blank unless you want to override it with your own. Used only in this browser tab to call Places, Text Search, and Distance Matrix directly — never sent anywhere else. Restrict it by HTTP referrer to your real domain once you\'re not testing from a local file.</div>'
     + '<label>Who does pickup, and from where</label><select id="s-pickup">'
     + '<option value="work"'+(S.pickup==='work'?' selected':'')+'>You, from your work</option>'
     + '<option value="work2"'+(S.pickup==='work2'?' selected':'')+'>'+esc(S.partner||'Partner')+', from her work</option>'
