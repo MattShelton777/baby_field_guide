@@ -296,8 +296,8 @@ textarea{min-height:76px;resize:vertical}
    not fine if this were ever multi-tenant. Leave the constants
    blank to keep the app fully local-only, same as before.
    ============================================================ */
-const SUPABASE_URL = '';
-const SUPABASE_ANON_KEY = '';
+const SUPABASE_URL = 'https://wadnocljvgjghvegnuju.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhZG5vY2xqdmdqZ2h2ZWdudWp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMDYyODYsImV4cCI6MjEwMDU4MjI4Nn0.cx_fx4nSm-TklPbUIPo13SZWUpvGhRXuxasPGiARFMQ';
 function supabaseConfigured(){ return !!(SUPABASE_URL && SUPABASE_ANON_KEY); }
 function normalizePhone(p){ return (p||'').replace(/[^\d+]/g,''); }
 
@@ -633,14 +633,74 @@ function renderRegistry(){
   $('#v-registry').innerHTML = h;
 }
 
-function vettingChecklistHTML(id){
-  const n = ((S.daycareNotes[id]||{}).q) || {};
+async function researchDaycare(id, place){
+  const key = S.profile.anthropicKey;
+  if(!key) return;
+  const qList = QUESTIONS.map(q=>q.id+': '+fill(q.q)).join('\n');
+  const user = 'Daycare: '+place.name
+    + '\nAddress: '+(place.formatted_address||'unknown')
+    + '\nGoogle rating: '+(place.rating||'unknown')+' ('+(place.user_ratings_total||0)+' reviews)'
+    + '\nWebsite: '+(place.website||'none listed')
+    + '\n\nQuestions:\n'+qList;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{
+      'content-type':'application/json',
+      'x-api-key': key,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body: JSON.stringify({
+      model:'claude-sonnet-5',
+      max_tokens:700,
+      system:'You help a parent prepare for a daycare tour. Given only the public name, address, '
+        +'and Google rating/review count of a specific childcare center, and general knowledge of how '
+        +'centers like it typically operate, draft a short best-guess answer to each numbered question '
+        +'below. Be direct and concrete, but these are assumptions to verify in person, not confirmed '
+        +'facts — if you have no real basis for a guess, say so plainly. Reply with ONLY a JSON object '
+        +'whose keys are the question ids and whose values are one-to-two-sentence guesses. No prose '
+        +'outside the JSON.',
+      messages:[{role:'user', content:user}]
+    })
+  });
+  if(!res.ok){
+    const body = await res.text().catch(()=>'');
+    throw new Error('Anthropic request failed ('+res.status+'): '+body.slice(0,200));
+  }
+  const data = await res.json();
+  const text = (data.content||[]).map(b=>b.text||'').join('').trim();
+  let parsed;
+  try{ parsed = JSON.parse(text); }
+  catch(e){ throw new Error('could not parse a response — try again'); }
+
+  S.daycareNotes[id] = S.daycareNotes[id] || {};
+  S.daycareNotes[id].research = parsed;
+  delete S.daycareNotes[id].researchError;
+  await Store.set(KEY, S);
+}
+
+function vettingChecklistHTML(id, place){
+  const notes = S.daycareNotes[id] || {};
+  const n = notes.q || {};
+  const research = notes.research || null;
+  const canResearch = !!(S.profile.anthropicKey && place);
   let h = '<details class="dc-questions" style="margin-top:10px">'
         + '<summary class="chip" style="cursor:pointer;display:inline-block">Questions to ask when you visit</summary>'
         + '<div style="margin-top:10px">';
+  if(canResearch){
+    const placeInfo = {name:place.name, formatted_address:place.formatted_address||'', rating:place.rating||null,
+                        user_ratings_total:place.user_ratings_total||0, website:place.website||''};
+    h += '<button class="btn ghost" data-research="'+id+'" data-place="'+esc(JSON.stringify(placeInfo))+'" style="margin-bottom:10px;font-size:10px;padding:8px 14px">'
+       + (research ? 'Re-research this one' : 'Research this one, using Claude') + '</button>';
+    if(research) h += '<div class="hint" style="margin-bottom:10px">Best guesses from public info, not confirmed — verify in person.</div>';
+    if(notes.researchError) h += '<div class="hint" style="margin-bottom:10px;color:var(--clay)">'+esc(notes.researchError)+'</div>';
+  }
   QUESTIONS.forEach(item=>{
-    h += '<div style="margin-bottom:10px"><div class="t-why" style="margin-bottom:4px">'+fill(item.q)+'</div>'
-       + '<textarea data-dcnote data-dcid="'+id+'" data-qid="'+item.id+'" placeholder="Their answer, once you visit" style="min-height:44px">'+esc(n[item.id]||'')+'</textarea></div>';
+    const guess = research && research[item.id];
+    h += '<div style="margin-bottom:10px"><div class="t-why" style="margin-bottom:4px">'+fill(item.q)+'</div>';
+    if(guess) h += '<div class="hint" style="margin-bottom:4px;font-style:italic">Assumed: '+esc(guess)+'</div>';
+    h += '<textarea data-dcnote data-dcid="'+id+'" data-qid="'+item.id+'" placeholder="Their answer, once you visit" style="min-height:44px">'+esc(n[item.id]||'')+'</textarea></div>';
   });
   h += '</div></details>';
   return h;
@@ -662,7 +722,7 @@ function mockDaycareHTML(){
     h += '<div class="dc"><div><h3>'+d.n+'</h3>'
        + '<div class="t-why">'+d.home+' min from home · '+d.work+' min from work · open till '+d.till+' · '+d.tuition+' · waitlist '+d.wait+'</div>'
        + '<div class="attrs">'+d.tags.map(t=>'<span class="chip">'+t+'</span>').join('')+'</div>'
-       + vettingChecklistHTML(d.n)
+       + vettingChecklistHTML(d.n, {name:d.n, rating:d.r, user_ratings_total:d.rev})
        + '</div>'
        + '<div class="score"><b>'+d.r+'</b><i>'+d.rev+' reviews</i></div></div>';
   });
@@ -719,7 +779,7 @@ function daycareResultsHTML(ranked){
        + '<div class="attrs">'+(p.formatted_phone_number?'<span class="chip">'+esc(p.formatted_phone_number)+'</span>':'')
        + (p.website?'<a class="chip" href="'+esc(p.website)+'" target="_blank" rel="noopener">Website</a>':'')+'</div>'
        + waitlistEditorHTML(p.place_id)
-       + vettingChecklistHTML(p.place_id)
+       + vettingChecklistHTML(p.place_id, p)
        + '</div>'
        + '<div class="score"><b>'+r.score+'</b><i>match score</i></div></div>';
   });
@@ -924,6 +984,9 @@ function renderSetup(){
     + '<input type="text" id="s-pickuptime" placeholder="5:30 PM" value="'+esc(S.pickupTime||'')+'">'
     + '<label for="s-startdate">Target daycare start date</label>'
     + '<input type="date" id="s-startdate" value="'+esc(S.startDate||'')+'">'
+    + '<label for="s-anthropickey">Anthropic API key (for the "Research this one" button)</label>'
+    + '<input type="text" id="s-anthropickey" placeholder="sk-ant-..." value="'+esc(S.profile.anthropicKey||'')+'">'
+    + '<div class="hint">Also used only in this browser tab, to draft best-guess answers to the vetting checklist for a specific daycare. Costs a few cents per click, billed to your Anthropic account.</div>'
     + '<button class="btn" id="s-save2" style="margin-top:20px">Save daycare settings</button></div>'
     + verseBlock();
   loadMaps().then(wireAutocomplete).catch(()=>{});
@@ -973,6 +1036,7 @@ document.addEventListener('click', async e=>{
 
   if(e.target.id === 's-save2'){
     S.profile.mapsKey = $('#s-mapskey').value.trim();
+    S.profile.anthropicKey = $('#s-anthropickey').value.trim();
     S.pickup = $('#s-pickup').value;
     S.pickupTime = $('#s-pickuptime').value.trim();
     S.startDate = $('#s-startdate').value;
@@ -985,6 +1049,23 @@ document.addEventListener('click', async e=>{
   }
 
   if(e.target.id === 'dc-refresh'){ dcCache = null; draw(); return; }
+
+  const rb = e.target.closest('[data-research]');
+  if(rb){
+    const id = rb.dataset.research;
+    const place = JSON.parse(rb.dataset.place);
+    rb.disabled = true; rb.textContent = 'Researching…';
+    try{
+      await researchDaycare(id, place);
+    }catch(err){
+      console.warn(err);
+      S.daycareNotes[id] = S.daycareNotes[id] || {};
+      S.daycareNotes[id].researchError = err.message;
+      await Store.set(KEY,S);
+    }
+    draw();
+    return;
+  }
 
   const gs = e.target.closest('#g-sex button');
   if(gs){
