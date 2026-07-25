@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Preview only, send nothing"
+        description: "Preview only, send nothing (ignored if force is checked)"
         type: boolean
         default: true
       week:
@@ -16,7 +16,7 @@ on:
         type: string
         default: ""
       force:
-        description: "Ignore quiet hours and cadence (for testing)"
+        description: "Send for real right now, ignoring quiet hours/cadence/dry_run"
         type: boolean
         default: false
 
@@ -51,13 +51,18 @@ jobs:
       - name: run nudge
         run: |
           ARGS=""
-          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          # force always wins: a checked "force" means send now, even if
+          # dry_run is still checked from its default in the dispatch form.
+          if [ "${{ inputs.force }}" = "true" ]; then
+            ARGS="$ARGS --force"
+          elif [ "${{ inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
           if [ -n "${{ inputs.week }}" ]; then ARGS="$ARGS --week ${{ inputs.week }}"; fi
-          if [ "${{ inputs.force }}" = "true" ]; then ARGS="$ARGS --force"; fi
           python nudge.py $ARGS
 
       - name: commit state
-        if: ${{ inputs.dry_run != 'true' }}
+        if: ${{ inputs.force == 'true' || inputs.dry_run != 'true' }}
         run: |
           git config user.name "baby-field-guide-bot"
           git config user.email "actions@users.noreply.github.com"
