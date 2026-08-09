@@ -70,6 +70,17 @@
    "verse": "Colossians 3:21",
    "segments": 3,
    "ref": "telegram:11"
+  },
+  {
+   "sent_at": "2026-08-09T14:25:29+00:00",
+   "week": 16,
+   "entries": [
+    "006",
+    "008"
+   ],
+   "verse": "Joshua 24:15",
+   "segments": 2,
+   "ref": "telegram:12"
   }
  ]
 }
