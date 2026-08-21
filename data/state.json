@@ -112,6 +112,17 @@
    "verse": "3 John 1:4",
    "segments": 2,
    "ref": "telegram:15"
+  },
+  {
+   "sent_at": "2026-08-21T14:25:12+00:00",
+   "week": 17,
+   "entries": [
+    "004",
+    "005"
+   ],
+   "verse": "Isaiah 40:11",
+   "segments": 3,
+   "ref": "telegram:16"
   }
  ]
 }
