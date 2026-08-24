@@ -123,6 +123,18 @@
    "verse": "Isaiah 40:11",
    "segments": 3,
    "ref": "telegram:16"
+  },
+  {
+   "sent_at": "2026-08-24T14:32:55+00:00",
+   "week": 18,
+   "entries": [
+    "009",
+    "007",
+    "016"
+   ],
+   "verse": "Psalm 139:13\u201314",
+   "segments": 3,
+   "ref": "telegram:17"
   }
  ]
 }
