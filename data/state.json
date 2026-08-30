@@ -145,6 +145,17 @@
    "verse": "James 1:17",
    "segments": 2,
    "ref": "telegram:18"
+  },
+  {
+   "sent_at": "2026-08-30T14:07:33+00:00",
+   "week": 19,
+   "entries": [
+    "004",
+    "005"
+   ],
+   "verse": "Malachi 4:6",
+   "segments": 3,
+   "ref": "telegram:19"
   }
  ]
 }
