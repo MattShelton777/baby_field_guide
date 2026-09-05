@@ -168,6 +168,18 @@
    "verse": "Proverbs 3:5",
    "segments": 3,
    "ref": "telegram:20"
+  },
+  {
+   "sent_at": "2026-09-05T16:24:06+00:00",
+   "week": 20,
+   "entries": [
+    "008",
+    "011",
+    "010"
+   ],
+   "verse": "Joshua 1:9",
+   "segments": 2,
+   "ref": "telegram:21"
   }
  ]
 }
