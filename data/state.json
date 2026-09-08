@@ -180,6 +180,18 @@
    "verse": "Joshua 1:9",
    "segments": 2,
    "ref": "telegram:21"
+  },
+  {
+   "sent_at": "2026-09-08T16:55:48+00:00",
+   "week": 20,
+   "entries": [
+    "005",
+    "012",
+    "015"
+   ],
+   "verse": "Psalm 127:3",
+   "segments": 3,
+   "ref": "telegram:22"
   }
  ]
 }
