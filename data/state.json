@@ -216,6 +216,17 @@
    "verse": "Ephesians 6:4",
    "segments": 3,
    "ref": "telegram:24"
+  },
+  {
+   "sent_at": "2026-09-17T17:55:59+00:00",
+   "week": 21,
+   "entries": [
+    "012",
+    "015"
+   ],
+   "verse": "Psalm 103:13",
+   "segments": 2,
+   "ref": "telegram:25"
   }
  ]
 }
