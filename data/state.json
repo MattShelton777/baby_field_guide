@@ -298,6 +298,18 @@
    "verse": "3 John 1:4",
    "segments": 2,
    "ref": "telegram:31"
+  },
+  {
+   "sent_at": "2026-10-09T14:13:57+00:00",
+   "week": 24,
+   "entries": [
+    "009",
+    "016",
+    "015"
+   ],
+   "verse": "Isaiah 40:11",
+   "segments": 3,
+   "ref": "telegram:32"
   }
  ]
 }
