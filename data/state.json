@@ -310,6 +310,17 @@
    "verse": "Isaiah 40:11",
    "segments": 3,
    "ref": "telegram:32"
+  },
+  {
+   "sent_at": "2026-10-12T16:20:25+00:00",
+   "week": 25,
+   "entries": [
+    "011",
+    "010"
+   ],
+   "verse": "Psalm 139:13\u201314",
+   "segments": 2,
+   "ref": "telegram:33"
   }
  ]
 }
