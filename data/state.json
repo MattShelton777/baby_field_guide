@@ -321,6 +321,18 @@
    "verse": "Psalm 139:13\u201314",
    "segments": 2,
    "ref": "telegram:33"
+  },
+  {
+   "sent_at": "2026-10-15T17:30:26+00:00",
+   "week": 25,
+   "entries": [
+    "014",
+    "012",
+    "013"
+   ],
+   "verse": "James 1:17",
+   "segments": 2,
+   "ref": "telegram:34"
   }
  ]
 }
