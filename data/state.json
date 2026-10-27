@@ -369,6 +369,18 @@
    "verse": "Joshua 1:9",
    "segments": 2,
    "ref": "telegram:37"
+  },
+  {
+   "sent_at": "2026-10-27T19:06:13+00:00",
+   "week": 27,
+   "entries": [
+    "016",
+    "017",
+    "015"
+   ],
+   "verse": "Psalm 127:3",
+   "segments": 2,
+   "ref": "telegram:38"
   }
  ]
 }
