@@ -417,6 +417,18 @@
    "verse": "Psalm 103:13",
    "segments": 3,
    "ref": "telegram:41"
+  },
+  {
+   "sent_at": "2026-11-08T16:52:05+00:00",
+   "week": 29,
+   "entries": [
+    "010",
+    "018",
+    "020"
+   ],
+   "verse": "Proverbs 20:7",
+   "segments": 3,
+   "ref": "telegram:42"
   }
  ]
 }
