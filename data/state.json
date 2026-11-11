@@ -429,6 +429,18 @@
    "verse": "Proverbs 20:7",
    "segments": 3,
    "ref": "telegram:42"
+  },
+  {
+   "sent_at": "2026-11-11T18:13:50+00:00",
+   "week": 29,
+   "entries": [
+    "012",
+    "013",
+    "023"
+   ],
+   "verse": "Colossians 3:21",
+   "segments": 2,
+   "ref": "telegram:43"
   }
  ]
 }
