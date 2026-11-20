@@ -465,6 +465,18 @@
    "verse": "1 Corinthians 16:13\u201314",
    "segments": 3,
    "ref": "telegram:45"
+  },
+  {
+   "sent_at": "2026-11-20T18:10:09+00:00",
+   "week": 30,
+   "entries": [
+    "012",
+    "013",
+    "023"
+   ],
+   "verse": "Proverbs 17:6",
+   "segments": 2,
+   "ref": "telegram:46"
   }
  ]
 }
